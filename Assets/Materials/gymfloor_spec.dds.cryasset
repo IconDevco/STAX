@@ -1,0 +1,10 @@
+<AssetMetadata version="0" type="Texture" guid="87fc4a7e-78af-b978-bfe9-a13e8838b2a9" source="gymfloor_spec.tif">
+ <Files>
+  <File path="gymfloor_spec.dds"/>
+ </Files>
+ <Details>
+  <Detail name="width">1024</Detail>
+  <Detail name="height">1024</Detail>
+  <Detail name="mipCount">9</Detail>
+ </Details>
+</AssetMetadata>

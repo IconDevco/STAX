@@ -1,0 +1,11 @@
+<Material MtlFlags="524320" Shader="Illum" GenMask="4000000000020" StringGenMask="%NORMAL_MAP%SUBSURFACE_SCATTERING" SurfaceType="" MatTemplate="" Diffuse="1,1,1" Specular="0.022173887,0.022173887,0.022173887" Opacity="1" Shininess="101.235" AlphaTest="0.30000001" CloakAmount="0" vertModifType="0" LayerAct="1">
+ <Textures>
+  <Texture Map="Diffuse" File="Materials/domino_diff.dds">
+   <TexMod TexMod_RotateType="0" TexMod_TexGenType="0" TexMod_bTexGenProjected="0" TileU="0.333" OffsetU="0.333" TileV="0.333" OffsetV="0.333"/>
+  </Texture>
+  <Texture Map="Bumpmap" File="Materials/domino_ddn.dds">
+   <TexMod TexMod_RotateType="0" TexMod_TexGenType="0" TexMod_bTexGenProjected="0"/>
+  </Texture>
+ </Textures>
+ <PublicParams EmittanceMapGamma="1" SSSIndex="0"/>
+</Material>

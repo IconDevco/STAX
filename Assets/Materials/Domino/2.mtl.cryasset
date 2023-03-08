@@ -1,0 +1,13 @@
+<AssetMetadata version="0" type="Material" guid="c1a5bb86-6973-45bc-b51d-cb385606439a" source="" timestamp="1678077009">
+ <Files>
+  <File path="2.mtl"/>
+ </Files>
+ <Details>
+  <Detail name="subMaterialCount">0</Detail>
+  <Detail name="textureCount">2</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">Materials/domino_diff.dds</Path>
+  <Path usageCount="1">Materials/domino_ddn.dds</Path>
+ </Dependencies>
+</AssetMetadata>

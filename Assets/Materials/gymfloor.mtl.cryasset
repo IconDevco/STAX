@@ -1,0 +1,14 @@
+<AssetMetadata version="0" type="Material" guid="8efaa9aa-2df9-0000-1c25-3c759e24385a" source="" timestamp="1678063330">
+ <Files>
+  <File path="gymfloor.mtl"/>
+ </Files>
+ <Details>
+  <Detail name="subMaterialCount">0</Detail>
+  <Detail name="textureCount">3</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">./gymfloor_diffuse.dds</Path>
+  <Path usageCount="1">./gymfloor_ddna.dds</Path>
+  <Path usageCount="1">./gymfloor_spec.dds</Path>
+ </Dependencies>
+</AssetMetadata>

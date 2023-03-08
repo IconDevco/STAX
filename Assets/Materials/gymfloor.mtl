@@ -1,0 +1,14 @@
+<Material MtlFlags="526336" Shader="Terrain.Layer" GenMask="2000200000020" StringGenMask="%NORMAL_MAP%SPECULAR_MAP%TEMP_TERRAIN" SurfaceType="mat_default" MatTemplate="" Diffuse="1,0.81484681,0.59061903" Specular="1,1,1" Opacity="1" Shininess="255" CloakAmount="0" vertModifType="0" LayerAct="1">
+ <Textures>
+  <Texture Map="Diffuse" File="Materials/gymfloor_diffuse.dds">
+   <TexMod TexMod_RotateType="0" TexMod_TexGenType="0" TexMod_bTexGenProjected="0"/>
+  </Texture>
+  <Texture Map="Bumpmap" File="Materials/gymfloor_ddna.dds">
+   <TexMod TexMod_RotateType="0" TexMod_TexGenType="0" TexMod_bTexGenProjected="0"/>
+  </Texture>
+  <Texture Map="Specular" File="Materials/gymfloor_spec.dds">
+   <TexMod TexMod_RotateType="0" TexMod_TexGenType="0" TexMod_bTexGenProjected="0"/>
+  </Texture>
+ </Textures>
+ <PublicParams BlendFactor="0" BlendFalloff="1" DetailTextureHighPassRange="15" DetailTextureStrength="1" DetailTextureStrengthFade="1" NormalMapBumpiness="1"/>
+</Material>

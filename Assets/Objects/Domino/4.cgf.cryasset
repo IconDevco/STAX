@@ -1,0 +1,11 @@
+<AssetMetadata version="0" type="Mesh" guid="d3f7ed84-3eac-1465-e995-bd0903baafb5">
+ <Files>
+  <File path="4.cgf"/>
+ </Files>
+ <Details>
+  <Detail name="materialCount">0</Detail>
+  <Detail name="triangleCount">2</Detail>
+  <Detail name="vertexCount">4</Detail>
+  <Detail name="16BitPrecision">false</Detail>
+ </Details>
+</AssetMetadata>

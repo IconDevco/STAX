@@ -1,0 +1,10 @@
+<AssetMetadata version="0" type="Texture" guid="8a7491d8-ff83-a20a-f30a-e8c6d83f9d45" source="domino_diff.tif">
+ <Files>
+  <File path="domino_diff.dds"/>
+ </Files>
+ <Details>
+  <Detail name="width">2048</Detail>
+  <Detail name="height">2048</Detail>
+  <Detail name="mipCount">10</Detail>
+ </Details>
+</AssetMetadata>

@@ -1,0 +1,12 @@
+<AssetMetadata version="0" type="Material" guid="a8fb38ed-a0a9-7e2c-b658-e996fab31a74" source="" timestamp="1678154784">
+ <Files>
+  <File path="dominoghost.mtl"/>
+ </Files>
+ <Details>
+  <Detail name="subMaterialCount">0</Detail>
+  <Detail name="textureCount">1</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">%engine%/engineassets/textures/white_ddn.dds</Path>
+ </Dependencies>
+</AssetMetadata>

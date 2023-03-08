@@ -1,0 +1,14 @@
+<AssetMetadata version="0" type="Mesh" guid="36207199-2d71-1a3f-e557-e1e672c29110">
+ <Files>
+  <File path="Dominoes.cgf"/>
+ </Files>
+ <Details>
+  <Detail name="materialCount">11</Detail>
+  <Detail name="triangleCount">1440</Detail>
+  <Detail name="vertexCount">946</Detail>
+  <Detail name="16BitPrecision">false</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">./Material #14.mtl</Path>
+ </Dependencies>
+</AssetMetadata>
