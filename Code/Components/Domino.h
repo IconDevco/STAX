@@ -40,8 +40,8 @@ public:
 			string name("materials/domino/" + ToString(r));
 			auto* pNumMaterial = gEnv->p3DEngine->GetMaterialManager()->LoadMaterial(name);
 			
-			IRenderAuxGeom* g = gEnv->pAuxGeomRenderer->GetAux();
-			g->Draw2dLabel(10,10,3,Col_Yellow,false, name);
+			//IRenderAuxGeom* g = gEnv->pAuxGeomRenderer->GetAux();
+			//g->Draw2dLabel(10,10,3,Col_Yellow,false, name);
 
 			m_pEntity->SetSlotMaterial(geometrySlot + i, pNumMaterial);
 		}

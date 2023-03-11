@@ -21,6 +21,7 @@
 #include "CryAction/IActionMapManager.h"
 
 
+#include "CryCore/Containers/CryArray.h"
 #include "PersistantDebug.h"
 
 ////////////////////////////////////////////////////////
@@ -199,7 +200,7 @@ protected:
 	void UpdateCamera(float frameTime);
 
 	Vec3 GetTacticalCameraMovementInputDirection();
-	Vec2 GetPilotMovementInputDirection();
+	//Vec2 GetPilotMovementInputDirection();
 
 	bool m_lookActive;
 	const float m_rotationSensitivity = 0.002f;
@@ -241,11 +242,11 @@ protected:
 	Vec3 GetPositionFromPointer();
 
 	bool m_placementActive = false;
-	DynArray<IEntity*> Dominoes;
-	DynArray<IEntity*> JustPlacedDominoes;
-	IEntity* m_firstPlacedDomino = nullptr;
-	IEntity* m_ghostFirstDomino = nullptr;
-	IEntity* m_ghostCursorDomino = nullptr;
+	DynArray<IEntity*> m_Dominoes;
+	DynArray<IEntity*> m_JustPlacedDominoes;
+	IEntity* m_pFirstPlacedDomino = nullptr;
+	IEntity* m_pGhostFirstDomino = nullptr;
+	IEntity* m_pGhostCursorDomino = nullptr;
 	Vec3 m_lastPlacedPosition = Vec3(0);
 	Vec3 m_firstPlacedPosition = Vec3(0);
 
@@ -260,14 +261,14 @@ protected:
 	void EndSimulation();
 	void ResetDominoes();
 
-	
 	bool m_isSimulating = false;
 
 	struct SHistorySet 
 	{
 		int m_index = 0;
-		std::vector<IEntity*> Dominoes;
+		DynArray<IEntity*> m_Dominoes;
 	};
+
 	SHistorySet* m_ActiveHistory = nullptr;
 	DynArray<SHistorySet*> History;
 
@@ -279,8 +280,9 @@ protected:
 	int m_undoSteps = 0;
 	void Undo();
 	void Redo();
-	void RestartHistory(int fromIndex);
+	//void RestartHistory(int undoSteps);
 
-
+	float m_debugTextOffset = 0;
+	
 };
 

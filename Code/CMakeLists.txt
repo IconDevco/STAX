@@ -27,7 +27,7 @@ add_sources("Components_uber.cpp"
     SOURCE_GROUP "Components"
 		"Components/Player.cpp"
 		"Components/SpawnPoint.cpp"
-		"Components/Bullet.h"
+		"Components/Domino.h"
 		"Components/Player.h"
 		"Components/SpawnPoint.h"
 )

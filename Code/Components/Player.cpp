@@ -57,7 +57,7 @@ void CPlayerComponent::InitializeLocalPlayer()
 	//BuildBoatAttachments();
 	BindInputs();
 
-
+	
 }
 
 //----------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ void CPlayerComponent::ProcessEvent(const SEntityEvent& event)
 
 			if (m_placementActive)
 			{
-				if(m_ghostFirstDomino)
+				if(m_pGhostFirstDomino)
 					UpdateFirstGhost(frameTime);
 				
 				UpdatePlacementPosition(GetPositionFromPointer(), frameTime);
@@ -200,7 +200,7 @@ void CPlayerComponent::HideCursor()
 void CPlayerComponent::PlaceDomino(Vec3 pos, Quat rot)
 {
 
-
+	debug->Add2DText("added domino",2,Col_Blue,2);
 	m_placedDominoes++;
 	SEntitySpawnParams spawnParams;
 	spawnParams.pClass = gEnv->pEntitySystem->GetClassRegistry()->GetDefaultClass();
@@ -224,8 +224,8 @@ void CPlayerComponent::PlaceDomino(Vec3 pos, Quat rot)
 		
 		//Vec3 m_position = e->GetEntity()->GetWorldPos();
 	//	Quat m_rotation = e->GetEntity()->GetWorldRotation();
-		Dominoes.push_back(pEntity);
-		m_ActiveHistory->Dominoes.push_back(pEntity);
+		m_Dominoes.push_back(pEntity);
+		m_ActiveHistory->m_Dominoes.push_back(pEntity);
 	}
 
 		m_lastPlacedPosition = pos;
@@ -234,7 +234,7 @@ void CPlayerComponent::PlaceDomino(Vec3 pos, Quat rot)
 }
 
 void CPlayerComponent::BeginSimulation() {
-	for (IEntity* pDom : Dominoes) {		
+	for (IEntity* pDom : m_Dominoes) {		
 		pe_action_awake awake;
 		awake.bAwake = 1;
 		pDom->GetPhysics()->Action(&awake);
@@ -244,7 +244,7 @@ void CPlayerComponent::BeginSimulation() {
 
 void CPlayerComponent::EndSimulation() {
 	ResetDominoes();
-	for (IEntity* pDom : Dominoes) {
+	for (IEntity* pDom : m_Dominoes) {
 		pe_action_awake awake;
 		awake.bAwake = 0;
 		pDom->GetPhysics()->Action(&awake);
@@ -253,7 +253,7 @@ void CPlayerComponent::EndSimulation() {
 }
 
 void CPlayerComponent::ResetDominoes() {
-	for (IEntity* pDom : Dominoes) {
+	for (IEntity* pDom : m_Dominoes) {
 		CDominoComponent* dom = pDom->GetComponent<CDominoComponent>();
 		pDom->SetPosRotScale(dom->m_position, dom->m_rotation, Vec3(1));
 	}
@@ -264,7 +264,7 @@ void CPlayerComponent::RemoveDomino(IEntity* Domino)
 
 
 	gEnv->pEntitySystem->RemoveEntity(Domino->GetId());
-	Dominoes.shrink_to_fit();
+	//m_Dominoes.shrink_to_fit();
 
 
 }
@@ -272,59 +272,86 @@ void CPlayerComponent::RemoveDomino(IEntity* Domino)
 void CPlayerComponent::InsertHistorySet(SHistorySet* historySet)
 {
 	debug->Add2DText("Added history set "+ ToString(historySet->m_index), 2, Col_White, 2);
-	History.push_back(historySet);
+	History.append(historySet);
 	//History[m_historyStep]=historySet;
 	//m_historyStep++;
 
 }
 
 void CPlayerComponent::Undo()
-{
-	int n = History.size() - m_undoSteps;
-	if (n < 1)
+{	
+	
+
+	if (m_placementActive)
 		return;
-	debug->Add2DText("Undoing " +ToString(n), 2, Col_White, 2);
-	for (IEntity* pDomino : History[n-1]->Dominoes) {
+
+	if (History.empty())
+		return;
+
+	int historySize= History.size();
+	if (m_undoSteps < 1)
+		m_undoSteps = 1;
+	
+	int removedSteps = historySize - m_undoSteps;
+
+	if (m_undoSteps > historySize)
+		return;
+
+	if (removedSteps < 1)
+		return;
+
+	//int historyToHide = removedSteps - 1;
+	for (IEntity* pDomino : History[removedSteps]->m_Dominoes) {
 		pDomino->Hide(true);
 	}
 	m_undoSteps++;
+	
 	
 }
 
 void CPlayerComponent::Redo()
 {
-
+	if (m_undoSteps > 0)
+		m_undoSteps--;
 }
-
+/*
 void CPlayerComponent::RestartHistory(int fromIndex)
 {
-	CryLog("Restarting from entry %n", fromIndex);
+	CryLog("Attempting to restart history from index %i", fromIndex);
+
 
 	int historySize = History.size();
+	//int restarted = historySize - m_undoSteps;
+	CryLog("History size %i", historySize);
 
-	//CryLog("History has %n entries", historySize);
-
-	for (int i = fromIndex; fromIndex < historySize; i++)
+	for (int i = historySize-1; i > fromIndex-1; i--)
 	{
-		//CryLog("Removing Entry: %n", i);
-
-		for (IEntity* pDomino : History[i]->Dominoes) {
+		CryLog("Clearing entry %i", i);
+		for (IEntity* pDomino : History[i]->m_Dominoes) {
 			RemoveDomino(pDomino);
 		}
+		History[i]->m_Dominoes.clear();
+		CryLog("Successfully removed m_Dominoes");
+		debug->Add2DText("Successfully removed m_Dominoes", 2, Col_Blue, 5);
+
+		History.erase(i);
+		History.destroy(i);
+		History.resize(i);// +1);
 		
-		//History.erase(i);
-		//History.erase(i);
-		//History.destroy(i);
+		//DynArray<SHistorySet*> TempHistory;
+		//TempHistory.append(i);
+		//History.clear();
+		//History = TempHistory;
+
 	}
+	//History.erase(restarted, historySize);
 	History.shrink_to_fit();
-	History.resize(fromIndex);
-	
+	historySize = History.size();
 	m_undoSteps = 0;
-	debug->Add2DText("Resulting in " + ToString(History.size()) + " entries", 2, Col_Blue, 5);
-	CryLog("Resulting in %n entries", History.size());
+	CryLog("Resulting in %i entries", historySize);
 	
 }
-
+*/
 void CPlayerComponent::UpdatePlacementPosition(Vec3 o, float fTime)
 {
 
@@ -334,12 +361,12 @@ void CPlayerComponent::UpdatePlacementPosition(Vec3 o, float fTime)
 	{
 		m_placementCurrentGoalPosition = m_placementDesiredGoalPosition;
 		
-		if (!m_ghostFirstDomino)
+		if (!m_pGhostFirstDomino)
 			m_firstPlacedPosition = m_placementDesiredGoalPosition;
 		else 
-			m_firstPlacedPosition = m_ghostFirstDomino->GetWorldPos();
+			m_firstPlacedPosition = m_pGhostFirstDomino->GetWorldPos();
 		
-		//if (!m_ghostFirstDomino)
+		//if (!m_pGhostFirstDomino)
 		m_lastPlacedPosition = m_firstPlacedPosition;
 
 		CreateFirstGhost(m_firstPlacedPosition);
@@ -372,7 +399,7 @@ void CPlayerComponent::UpdatePlacementPosition(Vec3 o, float fTime)
 		}
 		if (!m_firstPlaced)
 		{
-			Quat firstDomRot = m_ghostFirstDomino->GetWorldRotation();
+			Quat firstDomRot = m_pGhostFirstDomino->GetWorldRotation();
 			DestroyFirstGhost();
 			PlaceDomino(m_firstPlacedPosition,firstDomRot);
 			Vec3 dir = m_placementCurrentGoalPosition - m_lastPlacedPosition;
@@ -399,7 +426,7 @@ void CPlayerComponent::UpdateCursorPointer()
 }
 
 //----------------------------------------------------------------------------------
-
+#include "Cry3DEngine/ITimeOfDay.h"
 Vec3 CPlayerComponent::GetPositionFromPointer()
 {
 	
@@ -422,8 +449,25 @@ Vec3 CPlayerComponent::GetPositionFromPointer()
 
 	const unsigned int rayFlags = rwi_stop_at_pierceable | rwi_colltype_any;
 	ray_hit hit;
+	
+	/*IPhysicalEntity** pSkips = new IPhysicalEntity*[4096];
+	
+	for (int i = 0; i < m_Dominoes.size()-1; i++)
+	{
+		if (m_Dominoes.empty())
+			break;
 
-	int hits = gEnv->pPhysicalWorld->RayWorldIntersection(vPos0, vDir * gEnv->p3DEngine->GetMaxViewDistance(), ent_all, rayFlags, &hit, 1);
+		pSkips[i] = m_Dominoes[i]->GetPhysicalEntity();
+		
+	}
+	
+	*/
+	int hits = 0;
+	if (m_placementActive)
+		hits = gEnv->pPhysicalWorld->RayWorldIntersection(vPos0, vDir * gEnv->p3DEngine->GetMaxViewDistance(), ent_static | ent_terrain, rayFlags, &hit, 1);
+	else
+	hits = gEnv->pPhysicalWorld->RayWorldIntersection(vPos0, vDir * gEnv->p3DEngine->GetMaxViewDistance(), ent_all, rayFlags, &hit, 1);
+	
 
 
 
@@ -467,7 +511,7 @@ void CPlayerComponent::ShowGhostCursor()
 void CPlayerComponent::CreateFirstGhost(Vec3 p)
 {
 
-	if (m_ghostFirstDomino != nullptr)
+	if (m_pGhostFirstDomino != nullptr)
 		return;
 
 	SEntitySpawnParams spawnParams;
@@ -480,28 +524,31 @@ void CPlayerComponent::CreateFirstGhost(Vec3 p)
 	if (IEntity* pEntity = gEnv->pEntitySystem->SpawnEntity(spawnParams))
 	{
 		pEntity->CreateComponentClass<CDominoComponent>();
-		m_ghostFirstDomino = pEntity;
+		m_pGhostFirstDomino = pEntity;
+		auto* pDominoMaterial = gEnv->p3DEngine->GetMaterialManager()->LoadMaterial("Objects/dominoghost");
+
+		pEntity->SetMaterial(pDominoMaterial);
 	}
 
 }
 void CPlayerComponent::UpdateFirstGhost(float fTime)
 {
-	if (!m_ghostFirstDomino)
+	if (!m_pGhostFirstDomino)
 		return;
 
-	Vec3 v = m_ghostFirstDomino->GetWorldPos() - m_placementCurrentGoalPosition;
+	Vec3 v = m_pGhostFirstDomino->GetWorldPos() - m_placementCurrentGoalPosition;
 	//v.z = 0;
-	m_ghostFirstDomino->SetRotation(Quat::CreateRotationVDir(v));
+	m_pGhostFirstDomino->SetRotation(Quat::CreateRotationVDir(v));
 }
 
 void CPlayerComponent::DestroyFirstGhost()
 {
-	if (m_ghostFirstDomino == nullptr)
+	if (m_pGhostFirstDomino == nullptr)
 		return;
 
 	
-	gEnv->pEntitySystem->RemoveEntity(m_ghostFirstDomino->GetId());
-	m_ghostFirstDomino = nullptr;
+	gEnv->pEntitySystem->RemoveEntity(m_pGhostFirstDomino->GetId());
+	m_pGhostFirstDomino = nullptr;
 	
 }
 /*
@@ -524,7 +571,7 @@ void CPlayerComponent::CreateGhostCursor()
 
 		//Vec3 m_position = e->GetEntity()->GetWorldPos();
 	//	Quat m_rotation = e->GetEntity()->GetWorldRotation();
-		Dominoes.append(pEntity);
+		m_Dominoes.append(pEntity);
 	}
 
 	m_lastPlacedPosition = pos;
@@ -644,16 +691,26 @@ void CPlayerComponent::BindInputs()
 			if (activationMode == eAAM_OnRelease)
 			{
 
-				if (m_ghostFirstDomino)
+				if (m_pGhostFirstDomino) 
+				{
+				
+					if (m_ActiveHistory->m_Dominoes.size() < 1)
+					{
+
+						Vec3 dir = GetPositionFromPointer() - m_pGhostFirstDomino->GetWorldPos();
+						dir.z = 0;
+						dir.normalize();
+					
+						PlaceDomino(m_firstPlacedPosition,Quat::CreateRotationVDir(dir));
+
+						if (m_ActiveHistory)
+							InsertHistorySet(m_ActiveHistory);
+
+					}
+
 					DestroyFirstGhost();
-
-				if (m_undoSteps > 0) {
-
-					//RestartHistory(History.size() - m_undoSteps);
 				}
 
-				if(m_ActiveHistory != nullptr)
-				InsertHistorySet(m_ActiveHistory);
 
 				m_ActiveHistory = nullptr;
 
@@ -667,8 +724,12 @@ void CPlayerComponent::BindInputs()
 			if (activationMode == eAAM_OnPress)
 			{
 				m_placementActive = true;
+				if(!m_ActiveHistory)
 				m_ActiveHistory = new SHistorySet();
-				m_ActiveHistory->m_index = History.size() + 1;
+				
+				
+
+				m_ActiveHistory->m_index = History.size();
 				//debug->Add2DText(ToString(m_ActiveHistroy->m_index), 2, Col_White, 2);
 			}
 		
