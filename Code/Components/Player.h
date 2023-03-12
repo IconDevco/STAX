@@ -235,6 +235,9 @@ protected:
 	Vec3 m_placementDesiredGoalPosition = Vec3(0);
 	Vec3 m_placementCurrentGoalPosition = Vec3(0);
 
+	Vec3 m_moveDesiredGoalPosition = Vec3(0);
+	Vec3 m_moveCurrentGoalPosition = Vec3(0);
+
 	void UpdatePlacementPosition(Vec3 o, float fTime);
 
 	//if a fleet is selected, then you can select any vessel in the fleet and drive it
@@ -272,17 +275,38 @@ protected:
 	SHistorySet* m_ActiveHistory = nullptr;
 	DynArray<SHistorySet*> History;
 
+	bool m_isHoveringEntity = false;
+	IEntity* GetEntityFromPointer();
+	IEntity* SelectEntity();
 	void RemoveDomino(IEntity* Domino);
 
 	void InsertHistorySet(SHistorySet* historySet);
 	int m_historyStep= 0;
 
 	int m_undoSteps = 0;
-	void Undo();
-	void Redo();
+	void Undo(int stepToRemove);
+
 	//void RestartHistory(int undoSteps);
 
 	float m_debugTextOffset = 0;
 	
+	bool m_readyToSelect = false;
+	IEntity* m_readySelectDomino = nullptr;
+	DynArray<IEntity*> m_SelectedEntities;
+	void UpdateMoveDomino(IEntity* single, Vec3 pos,float fTime);
+
+	bool m_isMoving = false;
+
+	Vec3 m_tempMoveDir = Vec3(0);
+
+	bool m_isDominoPhysicsEnabled = false;
+
+	void DisableDominoPhysics();
+	void EnableDominoPhysics();
+
+	IRenderAuxGeom* auxDebug;
+
+	Vec3 m_lastFrameMovePosition = Vec3(0);
+
 };
 

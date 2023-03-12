@@ -54,7 +54,7 @@ public:
 		// Now create the physical representation of the entity
 		SEntityPhysicalizeParams physParams;
 		physParams.type = PE_RIGID;
-		physParams.mass = 1.f;
+		physParams.mass = .04f;
 		m_pEntity->Physicalize(physParams);
 
 
@@ -65,6 +65,7 @@ public:
 		pe_action_awake awake; 
 		awake.bAwake = 0;
 		GetEntity()->GetPhysics()->Action(&awake);
+	
 
 		const unsigned int rayFlags = rwi_stop_at_pierceable | rwi_colltype_any;
 		ray_hit hit;
