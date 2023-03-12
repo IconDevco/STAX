@@ -270,6 +270,12 @@ protected:
 	{
 		int m_index = 0;
 		DynArray<IEntity*> m_Dominoes;
+		DynArray<Matrix34> m_moveHistory;
+		enum class EHistoryType {
+			Move,
+			Place
+		};
+		EHistoryType type;
 	};
 
 	SHistorySet* m_ActiveHistory = nullptr;

@@ -104,5 +104,7 @@ public:
 	}
 	// ~IEntityComponent
 
-	
+public:
+	int m_Index = 0;
+
 };

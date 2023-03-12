@@ -126,8 +126,11 @@ void CPlayerComponent::ProcessEvent(const SEntityEvent& event)
 				Vec3 o = m_readySelectDomino->GetWorldPos();
 
 				if (Distance::Point_Point(o, GetPositionFromPointer()) > m_placementDistance)
+				{
+					m_ActiveHistory->m_Dominoes.push_back(m_readySelectDomino);
+					//m_ActiveHistory->m_moveHistory.push_back(m_readySelectDomino->GetWorldTM());
 					m_isMoving = true;
-
+				}
 			}
 	
 			m_isHoveringEntity = GetEntityFromPointer() ? true : false;
@@ -266,13 +269,14 @@ void CPlayerComponent::PlaceDomino(Vec3 pos, Quat rot)
 		//	Quat m_rotation = e->GetEntity()->GetWorldRotation();
 			m_Dominoes.push_back(pEntity);
 			m_ActiveHistory->m_Dominoes.push_back(pEntity);
+			//m_ActiveHistory->m_moveHistory.push_back(pEntity->GetWorldTM());
 			pEntity->EnablePhysics(true);
+			dom->m_Index = m_placedDominoes;
 		}
 	}
 
 		m_lastPlacedPosition = pos;
 
-		
 }
 
 //----------------------------------------------------------------------------------
@@ -316,6 +320,7 @@ void CPlayerComponent::ResetDominoes() {
 
 		pDom->SetPosRotScale(dom->m_position, dom->m_rotation, Vec3(1));
 	}
+
 }
 
 //----------------------------------------------------------------------------------
@@ -386,19 +391,67 @@ void CPlayerComponent::InsertHistorySet(SHistorySet* historySet)
 //----------------------------------------------------------------------------------
 
 void CPlayerComponent::Undo(int stepToRemove)
-{	
-	
+{
 
+	//SHistorySet::EHistoryType place = SHistorySet::EHistoryType::Place;
 	if (m_placementActive)
 		return;
 	if (History.empty())
 		return;
 
-	for (IEntity* pDomino : History[stepToRemove-1]->m_Dominoes) {
-		pDomino->Hide(true);
+	switch (History[stepToRemove-1]->type) {
+	case SHistorySet::EHistoryType::Place:
+	{
+		int domSteps = History[stepToRemove - 1]->m_Dominoes.size();
+		
+		CryLog("Delete steps %i", domSteps);
+		CryLog("Removing history set %i", stepToRemove);
+		for (IEntity* pDomino : History[stepToRemove - 1]->m_Dominoes)
+		{
+			//domSteps++;
+			if (!pDomino)
+			{
+				CryLog("Domino not found ?!?!");
+				return;
+			}
+			CryLog("Attempting to remove domino");
+			CryLog("Removing Domino %i", pDomino->GetComponent<CDominoComponent>()->m_Index);
+			//pDomino->Hide(true);
+
+			CryLog("pre-size %i", m_Dominoes.size());
+			m_Dominoes.resize(History[stepToRemove - 1]->m_Dominoes.size()- domSteps);
+			CryLog("post-size %i", m_Dominoes.size());
+			gEnv->pEntitySystem->RemoveEntity(pDomino->GetId(), false);
+			
+		}
+		
+	}
+	break;
+
+	case SHistorySet::EHistoryType::Move:
+	{
+		CryLog("Attempting to undo Move");
+		if (History[stepToRemove - 1]->m_Dominoes.size() <= 0)
+			CryLog("No dominoes found in this history step");
+
+		for (IEntity* pDomino : History[stepToRemove - 1]->m_Dominoes)
+		{
+			CryLog("moving domino %i to %f %f %f", pDomino->GetComponent<CDominoComponent>()->m_Index,pDomino->GetWorldPos().x, pDomino->GetWorldPos().y, pDomino->GetWorldPos().z);
+			
+			if (!pDomino) {
+				CryLog("no domino found");
+				return;
+			}
+
+			pDomino->SetWorldTM(m_ActiveHistory->m_moveHistory[stepToRemove]);
+		}
+	}
+	break;
+
 	}
 
 	History.erase(stepToRemove-1);
+	
 
 }
 
@@ -849,11 +902,19 @@ void CPlayerComponent::BindInputs()
 			if (activationMode == eAAM_OnRelease)
 			{
 				EndSimulation();
-				m_isMoving = false;
-				m_readyToSelect = false;
-				m_readySelectDomino = nullptr;
+				
 				if (m_isMoving)
 				{
+					if (m_ActiveHistory)
+						{
+						debug->Add2DText("Added move history", 2, Col_Blue, 3);
+
+							m_ActiveHistory->type = SHistorySet::EHistoryType::Move;
+							CryLog("adding move history to domino %i", m_ActiveHistory->m_Dominoes[0]->GetComponent<CDominoComponent>()->m_Index);
+							m_ActiveHistory->m_moveHistory.push_back(m_readySelectDomino->GetWorldTM());
+							InsertHistorySet(m_ActiveHistory);
+						}
+
 					m_isMoving = false;
 					m_readyToSelect = false;
 					m_readySelectDomino = nullptr;
@@ -887,7 +948,10 @@ void CPlayerComponent::BindInputs()
 
 				if (m_placementActive)
 					if (m_ActiveHistory)
+					{
+						m_ActiveHistory->type = SHistorySet::EHistoryType::Place;
 						InsertHistorySet(m_ActiveHistory);
+					}
 
 				m_ActiveHistory = nullptr;
 
@@ -900,10 +964,16 @@ void CPlayerComponent::BindInputs()
 
 			if (activationMode == eAAM_OnPress)
 			{
+				if (!m_ActiveHistory)
+					m_ActiveHistory = new SHistorySet();
+
+				m_ActiveHistory->m_index = History.size();
+				
 				m_readyToSelect = false;
 				m_readySelectDomino = nullptr;
 				if (m_isHoveringEntity)
 				{
+					
 					m_readyToSelect = true;
 					m_readySelectDomino = GetEntityFromPointer();
 					m_placementActive = false;
@@ -916,10 +986,7 @@ void CPlayerComponent::BindInputs()
 					m_placementActive = true;
 				}
 
-				if (!m_ActiveHistory)
-					m_ActiveHistory = new SHistorySet();
-
-				m_ActiveHistory->m_index = History.size();
+				
 
 			}
 		});
