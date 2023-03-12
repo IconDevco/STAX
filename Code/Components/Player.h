@@ -257,7 +257,7 @@ protected:
 
 	bool m_firstPlaced = false;
 
-	float m_placementDistance = .3f;
+	float m_placementDistance = .4f;
 	int m_placedDominoes = 0;
 
 	void BeginSimulation();
@@ -313,6 +313,6 @@ protected:
 	IRenderAuxGeom* auxDebug;
 
 	Vec3 m_lastFrameMovePosition = Vec3(0);
-
+	void AddForceToDomino(IEntity* dom, float force);
 };
 

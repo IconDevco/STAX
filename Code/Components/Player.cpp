@@ -98,7 +98,9 @@ void CPlayerComponent::ProcessEvent(const SEntityEvent& event)
 			UpdateZoom(frameTime);
 			UpdateCameraTargetGoal(frameTime);
 
-			if (!m_isSimulating)
+			
+
+			//if (!m_isSimulating)
 				UpdateCursorPointer();
 
 			UpdateTacticalViewDirection(frameTime);
@@ -265,13 +267,14 @@ void CPlayerComponent::PlaceDomino(Vec3 pos, Quat rot)
 		if (auto dom = pEntity->CreateComponentClass<CDominoComponent>()) {
 			//auto e = pEntity->CreateComponentClass<CDominoComponent>();
 
-			//Vec3 m_position = e->GetEntity()->GetWorldPos();
+			Vec3 m_position = dom->GetEntity()->GetWorldPos();
 		//	Quat m_rotation = e->GetEntity()->GetWorldRotation();
 			m_Dominoes.push_back(pEntity);
 			m_ActiveHistory->m_Dominoes.push_back(pEntity);
 			//m_ActiveHistory->m_moveHistory.push_back(pEntity->GetWorldTM());
 			pEntity->EnablePhysics(true);
 			dom->m_Index = m_placedDominoes;
+			dom->m_position = m_position;
 		}
 	}
 
@@ -436,14 +439,21 @@ void CPlayerComponent::Undo(int stepToRemove)
 
 		for (IEntity* pDomino : History[stepToRemove - 1]->m_Dominoes)
 		{
-			CryLog("moving domino %i to %f %f %f", pDomino->GetComponent<CDominoComponent>()->m_Index,pDomino->GetWorldPos().x, pDomino->GetWorldPos().y, pDomino->GetWorldPos().z);
+			int e = History[stepToRemove-1]->m_moveHistory.size();
+			CryLog("Found %i move entries", e);
+			Vec3 pos = History[stepToRemove - 1]->m_moveHistory[e-1].GetTranslation();
+			CryLog("moving domino %i to %f %f %f", 
+				pDomino->GetComponent<CDominoComponent>()->m_Index,
+				pos.x,
+				pos.y,
+				pos.z);
 			
 			if (!pDomino) {
 				CryLog("no domino found");
 				return;
 			}
 
-			pDomino->SetWorldTM(m_ActiveHistory->m_moveHistory[stepToRemove]);
+			pDomino->SetPosRotScale(pos,IDENTITY,Vec3(1));
 		}
 	}
 	break;
@@ -507,6 +517,18 @@ void CPlayerComponent::EnableDominoPhysics()
 	
 	}
 	
+}
+void CPlayerComponent::AddForceToDomino(IEntity* dom, float force)
+{
+	pe_action_impulse impulse;
+	AABB aabb;
+	GetEntity()->GetLocalBounds(aabb);
+	float z = aabb.GetSize().z;
+	Vec3 imp = GetEntity()->GetWorldPos();
+	imp.z = z;
+	impulse.point = imp;
+	impulse.impulse = -GetEntity()->GetForwardDir() * force;
+	dom->GetPhysics()->Action(&impulse);
 }
 //----------------------------------------------------------------------------------
 
@@ -901,6 +923,8 @@ void CPlayerComponent::BindInputs()
 		{
 			if (activationMode == eAAM_OnRelease)
 			{
+				if (m_isSimulating)
+					return;
 				EndSimulation();
 				
 				if (m_isMoving)
@@ -911,7 +935,9 @@ void CPlayerComponent::BindInputs()
 
 							m_ActiveHistory->type = SHistorySet::EHistoryType::Move;
 							CryLog("adding move history to domino %i", m_ActiveHistory->m_Dominoes[0]->GetComponent<CDominoComponent>()->m_Index);
-							m_ActiveHistory->m_moveHistory.push_back(m_readySelectDomino->GetWorldTM());
+							Matrix34 m = m_readySelectDomino->GetWorldTM();
+							m.SetTranslation(m_readySelectDomino->GetComponent<CDominoComponent>()->m_position);
+							m_ActiveHistory->m_moveHistory.push_back(m);
 							InsertHistorySet(m_ActiveHistory);
 						}
 
@@ -959,11 +985,15 @@ void CPlayerComponent::BindInputs()
 				m_firstPlaced = false;
 			}
 
-			if (m_isSimulating)
-				return;
-
+		
 			if (activationMode == eAAM_OnPress)
 			{
+				if (m_isSimulating && m_isHoveringEntity)
+					AddForceToDomino(GetEntityFromPointer(), .2);
+
+				if (m_isSimulating)
+					return;
+
 				if (!m_ActiveHistory)
 					m_ActiveHistory = new SHistorySet();
 
@@ -987,6 +1017,7 @@ void CPlayerComponent::BindInputs()
 				}
 
 				
+
 
 			}
 		});

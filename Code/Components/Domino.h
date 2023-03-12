@@ -54,7 +54,7 @@ public:
 		// Now create the physical representation of the entity
 		SEntityPhysicalizeParams physParams;
 		physParams.type = PE_RIGID;
-		physParams.mass = .04f;
+		physParams.mass = .01f;
 		m_pEntity->Physicalize(physParams);
 
 
