@@ -1,0 +1,8 @@
+<Material MtlFlags="524324" Shader="Illum" GenMask="4000000000000" StringGenMask="%SUBSURFACE_SCATTERING" SurfaceType="" MatTemplate="" Diffuse="0.81484681,0.81484681,0.81484681" Specular="0.010329823,0.010329823,0.010329823" Opacity="0.79000002" Shininess="223.125" AlphaTest="0.78799999" CloakAmount="0" vertModifType="0" LayerAct="1">
+ <Textures>
+  <Texture Map="Diffuse" File="./court2.dds">
+   <TexMod TexMod_RotateType="0" TexMod_TexGenType="0" TexMod_bTexGenProjected="0"/>
+  </Texture>
+ </Textures>
+ <PublicParams EmittanceMapGamma="1" SSSIndex="0"/>
+</Material>

@@ -1,0 +1,14 @@
+<AssetMetadata version="0" type="Mesh" guid="dec2147e-65c1-e213-7b1d-e431b1e2a532" source="BlencherSeat.FBX">
+ <Files>
+  <File path="BlencherSeat.cgf"/>
+ </Files>
+ <Details>
+  <Detail name="materialCount">2</Detail>
+  <Detail name="triangleCount">52</Detail>
+  <Detail name="vertexCount">68</Detail>
+  <Detail name="16BitPrecision">false</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">./BlencherSeat.mtl</Path>
+ </Dependencies>
+</AssetMetadata>

@@ -1,0 +1,12 @@
+<AssetMetadata version="0" type="Material" guid="52dac214-277e-14f7-012c-0e3604239cb8" source="" timestamp="1681356950">
+ <Files>
+  <File path="court1.mtl"/>
+ </Files>
+ <Details>
+  <Detail name="subMaterialCount">0</Detail>
+  <Detail name="textureCount">1</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">./court2.dds</Path>
+ </Dependencies>
+</AssetMetadata>

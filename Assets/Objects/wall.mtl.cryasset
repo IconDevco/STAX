@@ -1,0 +1,14 @@
+<AssetMetadata version="0" type="Material" guid="d84c55db-1773-7ff5-e828-7dc965881239" source="" timestamp="1678764240">
+ <Files>
+  <File path="wall.mtl"/>
+ </Files>
+ <Details>
+  <Detail name="subMaterialCount">0</Detail>
+  <Detail name="textureCount">3</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">./qjpmzsp_4k_diff.dds</Path>
+  <Path usageCount="1">./qjpmzsp_4k_ddna.dds</Path>
+  <Path usageCount="1">./qjpmzsp_4k_spec.dds</Path>
+ </Dependencies>
+</AssetMetadata>

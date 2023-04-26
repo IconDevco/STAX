@@ -25,6 +25,7 @@ add_sources("Code_uber.cpp"
 add_sources("Components_uber.cpp"
     PROJECTS Game
     SOURCE_GROUP "Components"
+		"Components/Domino.cpp"
 		"Components/Player.cpp"
 		"Components/SpawnPoint.cpp"
 		"Components/Domino.h"

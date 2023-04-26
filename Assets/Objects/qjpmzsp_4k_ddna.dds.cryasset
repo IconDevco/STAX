@@ -1,0 +1,10 @@
+<AssetMetadata version="0" type="Texture" guid="76423824-cb91-158d-fe85-323700cc316a" source="qjpmzsp_4k_ddna.tif">
+ <Files>
+  <File path="qjpmzsp_4k_ddna.dds"/>
+ </Files>
+ <Details>
+  <Detail name="width">4096</Detail>
+  <Detail name="height">4096</Detail>
+  <Detail name="mipCount">11</Detail>
+ </Details>
+</AssetMetadata>

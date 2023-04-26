@@ -1,0 +1,14 @@
+<AssetMetadata version="0" type="Mesh" guid="cbdd92ef-5f61-1473-163c-168e7617e838" source="bleacherseathigjh.FBX">
+ <Files>
+  <File path="bleacherseathigjh.cgf"/>
+ </Files>
+ <Details>
+  <Detail name="materialCount">2</Detail>
+  <Detail name="triangleCount">260</Detail>
+  <Detail name="vertexCount">216</Detail>
+  <Detail name="16BitPrecision">false</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">./bleacherseathigjh.mtl</Path>
+ </Dependencies>
+</AssetMetadata>

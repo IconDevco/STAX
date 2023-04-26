@@ -1,0 +1,14 @@
+<AssetMetadata version="0" type="Mesh" guid="bf4f6b0f-77d7-ebde-75fa-553a48779f35" source="court.FBX">
+ <Files>
+  <File path="court.cgf"/>
+ </Files>
+ <Details>
+  <Detail name="materialCount">2</Detail>
+  <Detail name="triangleCount">4</Detail>
+  <Detail name="vertexCount">6</Detail>
+  <Detail name="16BitPrecision">false</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">./court.mtl</Path>
+ </Dependencies>
+</AssetMetadata>

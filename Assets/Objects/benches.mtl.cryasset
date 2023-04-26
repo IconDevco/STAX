@@ -1,0 +1,16 @@
+<AssetMetadata version="0" type="Material" guid="b00c721e-3f29-79a2-c289-34a45cacaa50" source="" timestamp="1678764243">
+ <Files>
+  <File path="benches.mtl"/>
+ </Files>
+ <Details>
+  <Detail name="subMaterialCount">2</Detail>
+  <Detail name="textureCount">5</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">Materials/gymfloor_diffuse.dds</Path>
+  <Path usageCount="1">Materials/gymfloor_ddna.dds</Path>
+  <Path usageCount="1">Materials/gymfloor_spec.dds</Path>
+  <Path usageCount="1">%ENGINE%/EngineAssets/Textures/white.dds</Path>
+  <Path usageCount="1">%ENGINE%/EngineAssets/Textures/white_ddn.dds</Path>
+ </Dependencies>
+</AssetMetadata>

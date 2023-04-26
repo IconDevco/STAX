@@ -1,0 +1,5 @@
+<TimeOfDay Time="8.5221663" TimeStart="0" TimeEnd="24" TimeAnimSpeed="0">
+ <Presets>
+  <Preset Name="Libs/environmentpresets/24cycle.env" Default="1"/>
+ </Presets>
+</TimeOfDay>

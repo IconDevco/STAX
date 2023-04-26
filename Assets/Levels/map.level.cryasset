@@ -1,0 +1,25 @@
+<AssetMetadata version="0" type="Level" guid="163207ab-13c0-f15d-a30e-e45b4be25017" source="" timestamp="1681362609">
+ <Files>
+  <File path="map/map.level"/>
+ </Files>
+ <Dependencies>
+  <Path usageCount="1">%ENGINE%/EngineAssets/Shading/default.env</Path>
+  <Path>%editor%/crydesigner_timeofday.xml</Path>
+  <Path>%editor%/leveltemplates.xml</Path>
+  <Path>%editor%/mapscreenshotsettings.xml</Path>
+  <Path>%editor%/mbttemplates.xml</Path>
+  <Path>%editor%/modellingpanel.xml</Path>
+  <Path>%editor%/objecttemplates.xml</Path>
+  <Path>%editor%/propertyenumerations.xml</Path>
+  <Path>%editor%/soundtemplates.xml</Path>
+  <Path>%editor%/toolbox.xml</Path>
+  <Path>%editor%/usertools.xml</Path>
+  <Path>%engine%/config/defaultscripts/compressionpolicy.xml</Path>
+  <Path>%engine%/engineassets/icons/averagememoryusage.dds</Path>
+  <Path>%engine%/engineassets/icons/highmemoryusage.dds</Path>
+  <Path>%engine%/engineassets/icons/livepreview.dds</Path>
+  <Path>%engine%/engineassets/icons/lowmemoryusage.dds</Path>
+  <Path>%engine%/engineassets/textures/grey.dds</Path>
+  <Path>scripts/network/compressionpolicy.xml</Path>
+ </Dependencies>
+</AssetMetadata>

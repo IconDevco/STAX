@@ -1,0 +1,14 @@
+<AssetMetadata version="0" type="Mesh" guid="3086182e-ff1f-4f0d-c325-85cde1b6cb3d" source="CorrugatedPanelHigh.FBX">
+ <Files>
+  <File path="CorrugatedPanelHigh.cgf"/>
+ </Files>
+ <Details>
+  <Detail name="materialCount">5</Detail>
+  <Detail name="triangleCount">30233</Detail>
+  <Detail name="vertexCount">23634</Detail>
+  <Detail name="16BitPrecision">false</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">./CorrugatedPanelHigh.mtl</Path>
+ </Dependencies>
+</AssetMetadata>

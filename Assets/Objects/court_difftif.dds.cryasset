@@ -1,0 +1,10 @@
+<AssetMetadata version="0" type="Texture" guid="b6512d0a-6975-196f-9477-595f2521bbff" source="court_difftif.tif">
+ <Files>
+  <File path="court_difftif.dds"/>
+ </Files>
+ <Details>
+  <Detail name="width">2048</Detail>
+  <Detail name="height">2048</Detail>
+  <Detail name="mipCount">10</Detail>
+ </Details>
+</AssetMetadata>

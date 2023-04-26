@@ -1,0 +1,12 @@
+<AssetMetadata version="0" type="Material" guid="a385319f-176f-5a6f-1110-31529dc3b8ab" source="" timestamp="1678846782">
+ <Files>
+  <File path="glaz.mtl"/>
+ </Files>
+ <Details>
+  <Detail name="subMaterialCount">0</Detail>
+  <Detail name="textureCount">1</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">%engine%/engineassets/textures/white_ddn.dds</Path>
+ </Dependencies>
+</AssetMetadata>

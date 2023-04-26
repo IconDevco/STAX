@@ -1,0 +1,12 @@
+<AssetMetadata version="0" type="Material" guid="0c484357-3257-6a4d-ab2e-ae2b812aa30c" source="" timestamp="1678762972">
+ <Files>
+  <File path="corrugatedpanelhigh1.mtl"/>
+ </Files>
+ <Details>
+  <Detail name="subMaterialCount">0</Detail>
+  <Detail name="textureCount">1</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">%engine%/engineassets/textures/white_ddn.dds</Path>
+ </Dependencies>
+</AssetMetadata>

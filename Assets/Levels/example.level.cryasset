@@ -1,4 +1,4 @@
-<AssetMetadata version="0" type="Level" guid="8f5c3da9-3f55-f065-983b-2dcb8a9301da" source="" timestamp="1678513761">
+<AssetMetadata version="0" type="Level" guid="8f5c3da9-3f55-f065-983b-2dcb8a9301da" source="" timestamp="1678760034">
  <Files>
   <File path="example/example.level"/>
  </Files>
@@ -20,20 +20,21 @@
   <Path>%engine%/engineassets/materials/water/wateroceanbottom.mtl</Path>
   <Path>%engine%/engineassets/objects/primitive_cube.cgf</Path>
   <Path>%engine%/engineassets/objects/primitive_plane.cgf</Path>
-  <Path>%engine%/engineassets/objects/primitive_sphere.cgf</Path>
   <Path>%engine%/engineassets/texturemsg/defaultnouvs.dds</Path>
   <Path>%engine%/engineassets/texturemsg/defaultsolids.mtl</Path>
+  <Path>%engine%/engineassets/texturemsg/replaceme.dds</Path>
   <Path>%engine%/engineassets/textures/skys/night/half_moon.dds</Path>
   <Path>%engine%/engineassets/textures/white.dds</Path>
+  <Path usageCount="1">Libs/environmentpresets/24cycle.env</Path>
   <Path>editor/resourcecache/materials/domino_ddn.dds</Path>
   <Path>editor/resourcecache/materials/domino_diff.dds</Path>
   <Path>editor/resourcecache/materials/gymfloor_ddna.dds</Path>
   <Path>editor/resourcecache/materials/gymfloor_diffuse.dds</Path>
   <Path>editor/resourcecache/materials/gymfloor_spec.dds</Path>
+  <Path>editor/resourcecache/objects/court_difftif.dds</Path>
   <Path>editor/resourcecache/textures/cubemaps/example/environmentprobe1_cm.dds</Path>
   <Path>editor/resourcecache/textures/cubemaps/example/environmentprobe1_cm_diff.dds</Path>
   <Path>engineassets/materials/water/ocean_default.mtl</Path>
-  <Path usageCount="1">libs/environmentpresets/example.env</Path>
   <Path>materials/domino_ddn.dds</Path>
   <Path>materials/domino_diff.dds</Path>
   <Path>materials/dominonum.mtl</Path>
@@ -41,9 +42,15 @@
   <Path>materials/gymfloor_ddna.dds</Path>
   <Path>materials/gymfloor_diffuse.dds</Path>
   <Path>materials/gymfloor_spec.dds</Path>
+  <Path>objects/corrugatedpanelhigh.cgf</Path>
+  <Path>objects/court.cgf</Path>
+  <Path>objects/court.mtl</Path>
+  <Path>objects/court1.mtl</Path>
+  <Path>objects/court_difftif.dds</Path>
   <Path>objects/dominoes.cgf</Path>
   <Path>objects/dominoes1.mtl</Path>
   <Path>objects/dominoghost.mtl</Path>
+  <Path>objects/lattice.cgf</Path>
   <Path>particles/ghost.pfx</Path>
   <Path>textures/cubemaps/example/environmentprobe1_cm.dds</Path>
   <Path>textures/cubemaps/example/environmentprobe1_cm_diff.dds</Path>

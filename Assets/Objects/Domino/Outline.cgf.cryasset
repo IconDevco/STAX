@@ -1,0 +1,14 @@
+<AssetMetadata version="0" type="Mesh" guid="b61c4626-d230-ed97-6d4d-15e83f9dbb5d">
+ <Files>
+  <File path="Outline.cgf"/>
+ </Files>
+ <Details>
+  <Detail name="materialCount">1</Detail>
+  <Detail name="triangleCount">1052</Detail>
+  <Detail name="vertexCount">632</Detail>
+  <Detail name="16BitPrecision">false</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">./Material #15.mtl</Path>
+ </Dependencies>
+</AssetMetadata>

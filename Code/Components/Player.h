@@ -253,11 +253,11 @@ protected:
 	Vec3 m_lastPlacedPosition = Vec3(0);
 	Vec3 m_firstPlacedPosition = Vec3(0);
 
-	void PlaceDomino(Vec3 pos, Quat rot = IDENTITY);
+	void PlaceDomino(Vec3 pos, Quat rot = IDENTITY, ColorF col = Col_Black);
 
 	bool m_firstPlaced = false;
 
-	float m_placementDistance = .4f;
+	float m_placementDistance = .1f;
 	int m_placedDominoes = 0;
 
 	void BeginSimulation();
@@ -265,7 +265,7 @@ protected:
 	void ResetDominoes();
 
 	bool m_isSimulating = false;
-
+	/*
 	struct SHistorySet 
 	{
 		int m_index = 0;
@@ -278,19 +278,19 @@ protected:
 		EHistoryType type;
 	};
 
-	SHistorySet* m_ActiveHistory = nullptr;
-	DynArray<SHistorySet*> History;
-
+	//SHistorySet* m_ActiveHistory = nullptr;
+	//DynArray<SHistorySet*> History;
+	*/
 	bool m_isHoveringEntity = false;
 	IEntity* GetEntityFromPointer();
 	IEntity* SelectEntity();
 	void RemoveDomino(IEntity* Domino);
 
-	void InsertHistorySet(SHistorySet* historySet);
+	//void InsertHistorySet(SHistorySet* historySet);
 	int m_historyStep= 0;
 
 	int m_undoSteps = 0;
-	void Undo(int stepToRemove);
+	//void Undo(int stepToRemove);
 
 	//void RestartHistory(int undoSteps);
 
@@ -314,5 +314,25 @@ protected:
 
 	Vec3 m_lastFrameMovePosition = Vec3(0);
 	void AddForceToDomino(IEntity* dom, float force);
+
+	float m_scaleModifier = 0.5f;
+
+	enum EToolMode {
+		eTM_Editing,
+		eTM_Placing,
+		eTM_Simulating
+
+	};
+	
+	EToolMode m_activeToolMode = eTM_Editing;
+
+	bool m_isOutlined = false;
+	IEntity* m_outlinedDomino = nullptr;
+
+	void OutlineDomino(IEntity* pEnt);
+	void RemoveOutline();
+
+
+	bool moveSingleton = false;
 };
 

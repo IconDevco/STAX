@@ -1,0 +1,16 @@
+<AssetMetadata version="0" type="Material" guid="a1526e01-26d7-3bc0-bb23-4a5df0eaf1d6" source="" timestamp="1678760294">
+ <Files>
+  <File path="court1.mtl"/>
+ </Files>
+ <Details>
+  <Detail name="subMaterialCount">2</Detail>
+  <Detail name="textureCount">5</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">Materials/gymfloor_diffuse.dds</Path>
+  <Path usageCount="1">Materials/gymfloor_ddna.dds</Path>
+  <Path usageCount="1">Materials/gymfloor_spec.dds</Path>
+  <Path usageCount="1">%ENGINE%/EngineAssets/Textures/white.dds</Path>
+  <Path usageCount="1">%ENGINE%/EngineAssets/Textures/white_ddn.dds</Path>
+ </Dependencies>
+</AssetMetadata>

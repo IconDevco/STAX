@@ -1,0 +1,14 @@
+<AssetMetadata version="0" type="Mesh" guid="6dbde840-50cb-7581-5da6-4a4fef5134d9" source="Lattice.FBX">
+ <Files>
+  <File path="Lattice.cgf"/>
+ </Files>
+ <Details>
+  <Detail name="materialCount">2</Detail>
+  <Detail name="triangleCount">19284</Detail>
+  <Detail name="vertexCount">25100</Detail>
+  <Detail name="16BitPrecision">false</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">./Lattice.mtl</Path>
+ </Dependencies>
+</AssetMetadata>

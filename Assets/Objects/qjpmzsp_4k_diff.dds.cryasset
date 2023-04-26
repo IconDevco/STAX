@@ -1,0 +1,10 @@
+<AssetMetadata version="0" type="Texture" guid="a91de91a-cd9a-3f2a-57d6-97c1d0e9b420" source="qjpmzsp_4k_diff.tif">
+ <Files>
+  <File path="qjpmzsp_4k_diff.dds"/>
+ </Files>
+ <Details>
+  <Detail name="width">4096</Detail>
+  <Detail name="height">4096</Detail>
+  <Detail name="mipCount">11</Detail>
+ </Details>
+</AssetMetadata>

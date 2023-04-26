@@ -1,0 +1,11 @@
+<AssetMetadata version="0" type="Mesh" guid="fb4c2db3-217b-2947-3678-7292da43f446">
+ <Files>
+  <File path="gib_floor.cgf"/>
+ </Files>
+ <Details>
+  <Detail name="materialCount">0</Detail>
+  <Detail name="triangleCount">1040</Detail>
+  <Detail name="vertexCount">1166</Detail>
+  <Detail name="16BitPrecision">false</Detail>
+ </Details>
+</AssetMetadata>

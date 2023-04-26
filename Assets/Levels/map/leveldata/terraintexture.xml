@@ -1,0 +1,70 @@
+<TerrainTexture TileCountX="8" TileCountY="8" TileResolution="512">
+ <RGBLayer>
+  <Tiles>
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+   <tile />
+  </Tiles>
+ </RGBLayer>
+</TerrainTexture>

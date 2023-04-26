@@ -1,4 +1,4 @@
-<TimeOfDay Time="12" TimeStart="12" TimeEnd="12" TimeAnimSpeed="0">
+<TimeOfDay Time="10.523167" TimeStart="12" TimeEnd="12" TimeAnimSpeed="0">
  <Presets>
   <Preset Name="libs/environmentpresets/example.env" Default="1"/>
  </Presets>

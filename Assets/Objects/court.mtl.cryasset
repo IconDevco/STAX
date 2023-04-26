@@ -1,0 +1,14 @@
+<AssetMetadata version="0" type="Material" guid="99e09ef3-b0ef-4b71-a710-9f8f59d4c70a" source="" timestamp="1678766708">
+ <Files>
+  <File path="court.mtl"/>
+ </Files>
+ <Details>
+  <Detail name="subMaterialCount">2</Detail>
+  <Detail name="textureCount">3</Detail>
+ </Details>
+ <Dependencies>
+  <Path usageCount="1">./court_difftif.dds</Path>
+  <Path usageCount="1">%ENGINE%/EngineAssets/Textures/white.dds</Path>
+  <Path usageCount="1">%ENGINE%/EngineAssets/Textures/white_ddn.dds</Path>
+ </Dependencies>
+</AssetMetadata>
