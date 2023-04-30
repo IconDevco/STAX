@@ -46,4 +46,26 @@ public:
 	bool m_ForceSimulate = false;
 	float m_scale = 1.f;
 	void PostUpdate();
+
+	float m_hoverHeight = 0;
+	float m_currHoverHeight = .2f;
+	bool m_isCursorHovered = false;
+	void Hover(float fTime);
+
+	void Reset();
+	void Simulate();
+	void EndSimulation();
+
+	void LockPhysics();
+	void UnlockPhysics();
+
+	void RenderDebug();
+
+	void DeleteDueToSpawnCollision();
+
+	bool m_isOutlined = false;
+	void UpdateOutline();
+	
+	bool m_isSelected = false;
+
 };

@@ -21,42 +21,47 @@ void CDominoComponent::Initialize()
 {
 	// Set the model
 	const int geometrySlot = 0;
-	GetEntity()->LoadGeometry(geometrySlot, "Objects/DominoMesh.cgf");
+	m_pEntity->LoadGeometry(geometrySlot, "Objects/DominoMesh.cgf");
 
-	GetEntity()->LoadGeometry(geometrySlot + 1, "Objects/Domino/1.cgf");
-	GetEntity()->LoadGeometry(geometrySlot + 2, "Objects/Domino/2.cgf");
+	m_pEntity->LoadGeometry(geometrySlot + 1, "Objects/Domino/1.cgf");
+	m_pEntity->LoadGeometry(geometrySlot + 2, "Objects/Domino/2.cgf");
 
 	auto* pDominoMaterial = gEnv->p3DEngine->GetMaterialManager()->LoadMaterial("Objects/dominoes1");
 	m_pEntity->SetMaterial(pDominoMaterial);
 
-	for (int i = 1; i < 5; i++) {
-		int r = cry_random(1, 6);
-		string name("materials/domino/" + ToString(r));
-		auto* pNumMaterial = gEnv->p3DEngine->GetMaterialManager()->LoadMaterial(name);
+
+		int bottom = cry_random(1, 6);
+		int top = cry_random(1, bottom);
+		string nameBottom("materials/domino/" + ToString(bottom));
+		string nameTop("materials/domino/" + ToString(top));
+		auto* pNumMaterialBottom = gEnv->p3DEngine->GetMaterialManager()->LoadMaterial(nameBottom);
+		auto* pNumMaterialTop = gEnv->p3DEngine->GetMaterialManager()->LoadMaterial(nameTop);
 
 		//IRenderAuxGeom* g = gEnv->pAuxGeomRenderer->GetAux();
 		//g->Draw2dLabel(10,10,3,Col_Yellow,false, name);
 
-		m_pEntity->SetSlotMaterial(geometrySlot + i, pNumMaterial);
-	}
+		m_pEntity->SetSlotMaterial(geometrySlot + 2, pNumMaterialBottom);
+		m_pEntity->SetSlotMaterial(geometrySlot + 1, pNumMaterialTop);
+	
 	
 	// Ratio is 0 - 255, 255 being 100% visibility
-	GetEntity()->SetViewDistRatio(255);
-	GetEntity()->SetLodRatio(50);
+	m_pEntity->SetViewDistRatio(255);
+	m_pEntity->SetLodRatio(50);
 
 	const unsigned int rayFlags = rwi_stop_at_pierceable | rwi_colltype_any;
 	ray_hit hit;
 
-	int hits = gEnv->pPhysicalWorld->RayWorldIntersection(GetEntity()->GetWorldPos(), Vec3(0, 0, -1) * INFINITE, ent_terrain, rayFlags, &hit, 1);
+	int hits = gEnv->pPhysicalWorld->RayWorldIntersection(m_pEntity->GetWorldPos(), Vec3(0, 0, -1) * INFINITE, ent_terrain, rayFlags, &hit, 1);
 
 	if (hits > 0)
-		GetEntity()->SetPos(hit.pt);
+		m_pEntity->SetPos(hit.pt);
 
-	m_position = GetEntity()->GetWorldPos();
-	m_rotation = GetEntity()->GetWorldRotation();
-	GetEntity()->SetScale(Vec3(m_scale));
+	m_position = m_pEntity->GetWorldPos();
+	m_rotation = m_pEntity->GetWorldRotation();
+	m_pEntity->SetScale(Vec3(m_scale));
 	m_mass *= m_scale;
-	Physicalize();
+	//Physicalize();
+
 }
 
 Cry::Entity::EventFlags CDominoComponent::GetEventMask() const
@@ -82,7 +87,7 @@ void CDominoComponent::ProcessEvent(const SEntityEvent& event)
 	case Cry::Entity::EEvent::EditorPropertyChanged:
 	{
 		SetScale(m_scale);
-		Physicalize();
+		//Physicalize();
 		
 	}
 	break;
@@ -94,7 +99,8 @@ void CDominoComponent::ProcessEvent(const SEntityEvent& event)
 		if (gEnv->IsEditor())
 			return;
 
-
+		Hover(frameTime);
+		UpdateOutline();
 	}
 	break;
 	}
@@ -116,22 +122,26 @@ void CDominoComponent::Physicalize()
 	physParams.mass = m_mass;
 	m_pEntity->Physicalize(physParams);
 
-
+	m_pEntity->GetPhysics()->Release();
 
 	pe_action_awake awake;
+	awake.bAwake = 0;
+	m_pEntity->GetPhysics()->Action(&awake);
+
+	//pe_action_awake awake;
 	
 	//if(m_ForceSimulate)
 	//	awake.bAwake = 1;
 //	else
 		//awake.bAwake = 0;
 	
-	GetEntity()->GetPhysics()->Action(&awake);
+	//m_pEntity->GetPhysics()->Action(&awake);
 
 }
 
 void CDominoComponent::SetScale(float y)
 {
-	GetEntity()->SetScale(Vec3(y));
+	m_pEntity->SetScale(Vec3(y));
 	m_mass *= m_scale;
 }
 
@@ -140,4 +150,87 @@ void CDominoComponent::PostUpdate()
 	SetScale(m_scale);
 	Physicalize();
 	
+}
+
+void CDominoComponent::Hover(float fTime)
+{
+	Vec3 wp = m_pEntity->GetWorldPos();
+	//float distance = m_pEntity->GetWorldPos().z - (m_position.z + m_hoverHeight);
+
+//	if (distance)
+		//return;
+
+	if (m_isCursorHovered)
+		m_hoverHeight = .07f;
+	else
+		m_hoverHeight = 0;
+
+
+	m_currHoverHeight = LERP(m_currHoverHeight, m_hoverHeight, fTime * 5);
+	Vec3 pos = Vec3(wp.x, wp.y, m_position.z + m_currHoverHeight);
+	Matrix34 tm = m_pEntity->GetWorldTM();
+	tm.SetTranslation(pos);
+	m_pEntity->SetWorldTM(tm);
+
+
+	m_isCursorHovered = false;
+}
+
+void CDominoComponent::Reset()
+{
+	Physicalize();
+
+	pe_action_add_constraint c;
+
+
+	m_pEntity->SetPosRotScale(m_position, m_rotation, Vec3(m_scale));
+
+}
+
+void CDominoComponent::Simulate()
+{
+	
+	pe_action_awake awake;
+	awake.bAwake = 1;
+	m_pEntity->GetPhysics()->Action(&awake);
+
+	//m_pEntity->EnablePhysics(false);
+
+
+
+}
+
+void CDominoComponent::EndSimulation()
+{
+	Reset();
+}
+
+void CDominoComponent::LockPhysics()
+{
+}
+
+void CDominoComponent::UnlockPhysics()
+{
+}
+
+void CDominoComponent::RenderDebug()
+{
+}
+
+void CDominoComponent::UpdateOutline()
+{
+
+	//create outline
+	if (m_isCursorHovered || m_isSelected ) 
+	{
+		m_pEntity->GetRenderNode()->m_nHUDSilhouettesParam = RGBA8(255, 255, 255, 255);
+	}
+
+	//remove outline
+	if (!m_isCursorHovered || !m_isSelected)
+	{
+		m_pEntity->GetRenderNode()->m_nHUDSilhouettesParam = RGBA8(0, 0, 0, 0);
+	}
+
+
 }

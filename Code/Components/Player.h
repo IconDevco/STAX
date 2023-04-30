@@ -122,14 +122,15 @@ public:
 
 	void Revive(const Matrix34& transform);
 
-	//ghost for domino placement;
-	//void CreateGhostCursor();
-void ShowGhostCursor();
-//	void HideGhostCursor();
+	void CreateOriginGhost(Vec3 p);
+	void UpdateOriginGhost(float fTime);
+	void DestroyOriginGhost();
+	IEntity* m_pOriginGhostDomino = nullptr;
 
-	void CreateFirstGhost(Vec3 p);
-	void UpdateFirstGhost(float fTime);
-	void DestroyFirstGhost();
+	void CreateCursorGhost(Vec3 p);
+	void UpdateCursorGhost(float fTime);
+	void DestroyCursorGhost();
+	IEntity* m_pCursorGhostDomino = nullptr;
 
 protected:
 	void HandleInputFlagChange(CEnumFlags<EInputFlag> flags, CEnumFlags<EActionActivationMode> activationMode, EInputFlagType type = EInputFlagType::Hold);
@@ -219,8 +220,8 @@ protected:
 	float m_maxTacticalDistance = 12;
 	//float MAX_MAP_DISTANCE = 200;
 
-	Vec3 m_cameraCurrentGoalPosition;
-	Vec3 m_cameraDesiredGoalPosition;
+	Vec3 m_cameraCurrentPosition;
+	Vec3 m_cameraGoalPosition;
 
 	float m_goalTension = 2.f;
 	float m_goalSpeed = 2.f;
@@ -232,32 +233,32 @@ protected:
 
 	//ILINE ECameraMode GetCameraMode() const { return m_currentCameraMode; }
 
-	Vec3 m_placementDesiredGoalPosition = Vec3(0);
-	Vec3 m_placementCurrentGoalPosition = Vec3(0);
 
-	Vec3 m_moveDesiredGoalPosition = Vec3(0);
-	Vec3 m_moveCurrentGoalPosition = Vec3(0);
+	Vec3 m_moveGoalPosition = Vec3(0);
+	Vec3 m_moveCurrentPosition = Vec3(0);
 
-	void UpdatePlacementPosition(Vec3 o, float fTime);
+
+	void UpdateActivePlacementPosition(Vec3 o, float fTime);
 
 	//if a fleet is selected, then you can select any vessel in the fleet and drive it
 	void UpdateCursorPointer();
-	Vec3 GetPositionFromPointer();
+	Vec3 GetPositionFromPointer(bool ignoreDominoes);
 
 	bool m_placementActive = false;
 	DynArray<IEntity*> m_Dominoes;
 	DynArray<IEntity*> m_JustPlacedDominoes;
 	IEntity* m_pFirstPlacedDomino = nullptr;
-	IEntity* m_pGhostFirstDomino = nullptr;
-	IEntity* m_pGhostCursorDomino = nullptr;
+
 	Vec3 m_lastPlacedPosition = Vec3(0);
 	Vec3 m_firstPlacedPosition = Vec3(0);
 
-	void PlaceDomino(Vec3 pos, Quat rot = IDENTITY, ColorF col = Col_Black);
+	void PlaceDomino(Vec3 pos);
 
 	bool m_firstPlaced = false;
 
 	float m_placementDistance = .1f;
+	float m_placementDistanceStep = .1f;
+	
 	int m_placedDominoes = 0;
 
 	void BeginSimulation();
@@ -281,10 +282,26 @@ protected:
 	//SHistorySet* m_ActiveHistory = nullptr;
 	//DynArray<SHistorySet*> History;
 	*/
-	bool m_isHoveringEntity = false;
-	IEntity* GetEntityFromPointer();
-	IEntity* SelectEntity();
-	void RemoveDomino(IEntity* Domino);
+	bool m_mouseDown = false;
+	Vec3 m_clickPosition = Vec3(0);
+	IEntity* m_halfSelectDomino;// = false;
+
+	bool m_isHoveringEntity()
+	{
+		return GetDominoFromPointer() ? true : false;
+	}
+
+	IEntity* GetDominoFromPointer();
+	IEntity* SelectDomino(IEntity* pDomino);
+	
+	DynArray<IEntity*> m_SelectedDominoes;
+
+	void DeselectDomino(IEntity* pDomino);
+	void DeselectAllDominoes();
+	void RemoveDomino(IEntity* pDomino);
+	void DeleteDomino(IEntity* pDomino) { RemoveDomino(pDomino); }
+	void DestroyDomino(IEntity* pDomino){ RemoveDomino(pDomino); }
+
 
 	//void InsertHistorySet(SHistorySet* historySet);
 	int m_historyStep= 0;
@@ -295,11 +312,12 @@ protected:
 	//void RestartHistory(int undoSteps);
 
 	float m_debugTextOffset = 0;
-	
+	void UpdateDebug(float fTime);
 	bool m_readyToSelect = false;
 	IEntity* m_readySelectDomino = nullptr;
-	DynArray<IEntity*> m_SelectedEntities;
-	void UpdateMoveDomino(IEntity* single, Vec3 pos,float fTime);
+	
+	
+	void UpdateMoveDomino(Vec3 pos,float fTime);
 
 	bool m_isMoving = false;
 
@@ -307,8 +325,8 @@ protected:
 
 	bool m_isDominoPhysicsEnabled = false;
 
-	void DisableDominoPhysics();
-	void EnableDominoPhysics();
+	//void DisableDominoPhysics();
+	//void EnableDominoPhysics();
 
 	IRenderAuxGeom* auxDebug;
 
@@ -318,21 +336,36 @@ protected:
 	float m_scaleModifier = 0.5f;
 
 	enum EToolMode {
-		eTM_Editing,
-		eTM_Placing,
-		eTM_Simulating
+		eTM_Editing, //moving, scaling, coloring
+		eTM_Placing, //only placing. placing off a domino continues from that line
+		eTM_Simulating //clickable and physics enabled
 
 	};
 	
 	EToolMode m_activeToolMode = eTM_Editing;
-
-	bool m_isOutlined = false;
-	IEntity* m_outlinedDomino = nullptr;
-
-	void OutlineDomino(IEntity* pEnt);
-	void RemoveOutline();
-
+	int m_activeIndex = 1;
 
 	bool moveSingleton = false;
+	IEntity* m_lastHoveredDomino=nullptr;
+	void ChangeToolMode(int index);
+
+	bool m_isPlacing = false;
+
+	Vec3 m_dragStartPosition = Vec3(0);
+	bool m_isDragging = false;
+	float m_dragThreshold = 0.1f;
+	
+
+	Vec3 m_nextPlacePosition = Vec3(0);
+	
+	
+	Vec3 m_smoothGoalPosition = Vec3(0);
+	Vec3 m_smoothCurrentPosition = Vec3(0);
+
+	
+	void BeginSmoothPosition(Vec3 origin);
+	void UpdateSmoothPoisition(float fTime);
+	Vec3 GetSmoothPosition();
+
 };
 
