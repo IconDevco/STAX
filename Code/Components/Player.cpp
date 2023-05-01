@@ -163,10 +163,13 @@ void CPlayerComponent::ProcessEvent(const SEntityEvent& event)
 
 					if (!m_isPlacing)
 					{
-						if (!m_pOriginGhostDomino)
-							CreateOriginGhost(GetPositionFromPointer(true));
+						if (!m_isPlacingFromExistingDomino)
+						{
+							if (!m_pOriginGhostDomino)
+								CreateOriginGhost(GetPositionFromPointer(true));
 
-						UpdateOriginGhost(frameTime);
+							UpdateOriginGhost(frameTime);
+						}
 
 						if (!m_pCursorGhostDomino)
 							CreateCursorGhost(GetPositionFromPointer(true));
@@ -352,7 +355,8 @@ void CPlayerComponent::PlaceDomino(Vec3 pos)
 void CPlayerComponent::BeginSimulation() {
 	CryLog("Begin Simulation");
 	for (IEntity* pDom : m_Dominoes) {		
-		pDom->GetComponent<CDominoComponent>()->Simulate();
+		auto d = pDom->GetComponent<CDominoComponent>();
+		d->Simulate();
 		
 	}
 
@@ -401,10 +405,8 @@ IEntity* CPlayerComponent::GetDominoFromPointer()
 
 		if (IEntity* pEnt = gEnv->pEntitySystem->GetEntityFromPhysics(hit.pCollider))
 		{
-			CryLog("ent found");
 			if (CDominoComponent* pDomino = pEnt->GetComponent<CDominoComponent>())
 			{
-				CryLog("dom found");
 				return pEnt;
 			}
 		}
@@ -484,6 +486,20 @@ void CPlayerComponent::UpdateDebug(float fTime)
 	auxDebug->DrawSphere(GetSmoothPosition() + Vec3(0, 0, offset * 2), .1f, Col_Plum, false);
 	auxDebug->DrawSphere(m_lastPlacedPosition + Vec3(0, 0, offset * 3), .1f, Col_Cyan, false);
 	auxDebug->DrawSphere(m_firstPlacedPosition + Vec3(0, 0, offset * 4), .1f, Col_White, false);
+
+	if (m_isHoveringEntity())
+	{
+		//Vec3 p = GetDominoFromPointer()->GetWorldPos();
+	//	p.z += .5f;
+		pe_status_dynamics d; 
+	
+		GetDominoFromPointer()->GetPhysics()->GetStatus(&d);;
+		auxDebug->Draw2dLabel(0, xOffset * iter++, 2, Col_Yellow, false, "KG: " + ToString(d.mass));
+		//auxDebug->Draw2dLabel(0, xOffset * iter++, 2, Col_Yellow, false, "Tool Mode: " + ToString(m_activeToolMode));
+
+
+	}
+
 	
 }
 
@@ -540,6 +556,10 @@ void CPlayerComponent::ChangeToolMode(int index)
 	
 	m_activeToolMode = (EToolMode)m_activeIndex;
 	m_isSimulating = m_activeToolMode == EToolMode::eTM_Simulating ? true : false;
+	if (m_isSimulating)
+		BeginSimulation();
+	else
+		EndSimulation();
 }
 
 void CPlayerComponent::BeginSmoothPosition(Vec3 origin)
@@ -953,8 +973,13 @@ void CPlayerComponent::BindInputs()
 					
 					if (m_isHoveringEntity())
 					{
-						CreateOriginGhost(GetDominoFromPointer()->GetWorldPos());
-						RemoveDomino(GetDominoFromPointer());
+						m_isPlacingFromExistingDomino = true;
+
+						m_lastPlacedPosition = GetPositionFromPointer(true);
+						m_clickPosition = m_lastPlacedPosition;
+						//CreateOriginGhost(GetDominoFromPointer()->GetWorldPos());
+						CreateCursorGhost(GetDominoFromPointer()->GetWorldPos());
+						//RemoveDomino(GetDominoFromPointer());
 					}
 
 					if (!m_isHoveringEntity())
@@ -1119,11 +1144,11 @@ void CPlayerComponent::UpdateZoom(float frameTime)
 	//CryLog("Player: Attempting to update view distance to %f", m_desiredViewDistance);
 
 
-		m_desiredViewDistance = CLAMP(m_desiredViewDistance, m_minTacticalDistance, m_maxTacticalDistance);
-	
+	m_desiredViewDistance = CLAMP(m_desiredViewDistance, m_minTacticalDistance, m_maxTacticalDistance);
 
 
-		float f = Lerp(m_currViewDistance, m_desiredViewDistance, frameTime);// *m_zoomTension);
+
+	float f = Lerp(m_currViewDistance, m_desiredViewDistance, frameTime);// *m_zoomTension);
 	m_currViewDistance = f;
 	m_scrollY = 0;
 

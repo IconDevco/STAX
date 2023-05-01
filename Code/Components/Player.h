@@ -367,5 +367,7 @@ protected:
 	void UpdateSmoothPoisition(float fTime);
 	Vec3 GetSmoothPosition();
 
+	bool m_isPlacingFromExistingDomino = false;
+
 };
 

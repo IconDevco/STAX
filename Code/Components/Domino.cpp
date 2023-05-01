@@ -60,7 +60,9 @@ void CDominoComponent::Initialize()
 	m_rotation = m_pEntity->GetWorldRotation();
 	m_pEntity->SetScale(Vec3(m_scale));
 	m_mass *= m_scale;
-	//Physicalize();
+	Physicalize();
+
+	//m_pPointConstraint = m_pEntity->GetOrCreateComponent<Cry::DefaultComponents::CPointConstraintComponent>();
 
 }
 
@@ -87,7 +89,7 @@ void CDominoComponent::ProcessEvent(const SEntityEvent& event)
 	case Cry::Entity::EEvent::EditorPropertyChanged:
 	{
 		SetScale(m_scale);
-		//Physicalize();
+		Physicalize();
 		
 	}
 	break;
@@ -136,7 +138,7 @@ void CDominoComponent::Physicalize()
 		//awake.bAwake = 0;
 	
 	//m_pEntity->GetPhysics()->Action(&awake);
-
+	LockPhysics();
 }
 
 void CDominoComponent::SetScale(float y)
@@ -154,6 +156,9 @@ void CDominoComponent::PostUpdate()
 
 void CDominoComponent::Hover(float fTime)
 {
+	if (m_isSimulating)
+		return;
+
 	Vec3 wp = m_pEntity->GetWorldPos();
 	//float distance = m_pEntity->GetWorldPos().z - (m_position.z + m_hoverHeight);
 
@@ -180,20 +185,18 @@ void CDominoComponent::Reset()
 {
 	Physicalize();
 
-	pe_action_add_constraint c;
-
-
 	m_pEntity->SetPosRotScale(m_position, m_rotation, Vec3(m_scale));
 
 }
 
 void CDominoComponent::Simulate()
 {
-	
+	m_isSimulating = true;
 	pe_action_awake awake;
-	awake.bAwake = 1;
+	awake.bAwake = 0;
 	m_pEntity->GetPhysics()->Action(&awake);
 
+	UnlockPhysics();
 	//m_pEntity->EnablePhysics(false);
 
 
@@ -202,15 +205,47 @@ void CDominoComponent::Simulate()
 
 void CDominoComponent::EndSimulation()
 {
+	m_isSimulating = false;
 	Reset();
 }
 
 void CDominoComponent::LockPhysics()
 {
+	//m_pPointConstraint->Activate(true);
+	//m_pPointConstraint->ConstrainToPoint();
+
+	pe_action_add_constraint constraint;
+	constraint.flags = world_frames | constraint_no_tears;
+
+	constraint.xlimits[0] = 0;
+		constraint.xlimits[1] = 0;
+	constraint.yzlimits[0] = 0;
+	constraint.yzlimits[1] = 0;
+
+
+	m_pEntity->GetPhysics()->Action(&constraint);
+
+
+	SEntityPhysicalizeParams physParams;
+	physParams.type = PE_STATIC;
+	physParams.mass = m_mass;
+	m_pEntity->Physicalize(physParams);
+
 }
 
 void CDominoComponent::UnlockPhysics()
 {
+	SEntityPhysicalizeParams physParams;
+	physParams.type = PE_RIGID;
+	physParams.mass = m_mass;
+	m_pEntity->Physicalize(physParams);
+
+	m_pEntity->GetPhysics()->Release();
+
+	pe_action_awake awake;
+	awake.bAwake = 0;
+	m_pEntity->GetPhysics()->Action(&awake);
+
 }
 
 void CDominoComponent::RenderDebug()

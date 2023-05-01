@@ -7,6 +7,7 @@
 #include <CrySchematyc/Reflection/TypeDesc.h>
 #include <CrySchematyc/Env/IEnvRegistrar.h>
 #include <CrySchematyc/Env/Elements/EnvComponent.h>
+//#include "DefaultComponents/Constraints/PointConstraint.h"
 
 
 #include "CryRenderer/ITexture.h"
@@ -56,6 +57,8 @@ public:
 	void Simulate();
 	void EndSimulation();
 
+	bool m_isSimulating = true;
+
 	void LockPhysics();
 	void UnlockPhysics();
 
@@ -67,5 +70,7 @@ public:
 	void UpdateOutline();
 	
 	bool m_isSelected = false;
+
+	//Cry::DefaultComponents::CPointConstraintComponent* m_pPointConstraint = nullptr;
 
 };
