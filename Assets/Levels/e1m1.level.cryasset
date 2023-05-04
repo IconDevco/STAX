@@ -1,4 +1,4 @@
-<AssetMetadata version="0" type="Level" guid="254da43d-d6c6-2d57-156f-dea0f65735a7" source="" timestamp="1682652871">
+<AssetMetadata version="0" type="Level" guid="254da43d-d6c6-2d57-156f-dea0f65735a7" source="" timestamp="1682992021">
  <Files>
   <File path="e1m1/e1m1.level"/>
  </Files>
@@ -6,9 +6,6 @@
   <Path>%editor%/materials/shaderlist.xml</Path>
   <Path>%editor%/objects/envcube.cgf</Path>
   <Path>%editor%/objects/envcube.mtl</Path>
-  <Path>%editor%/objects/mtlobjects.mtl</Path>
-  <Path>%editor%/objects/mtlplane.cgf</Path>
-  <Path>%editor%/objects/mtlsphere.cgf</Path>
   <Path>%engine%/engineassets/icons/averagememoryusage.dds</Path>
   <Path>%engine%/engineassets/icons/highmemoryusage.dds</Path>
   <Path>%engine%/engineassets/icons/livepreview.dds</Path>
@@ -18,18 +15,12 @@
   <Path>%engine%/engineassets/materials/lens_optics.mtl</Path>
   <Path>%engine%/engineassets/materials/material_terrain_default.mtl</Path>
   <Path>%engine%/engineassets/materials/water/ocean_default.mtl</Path>
-  <Path>%engine%/engineassets/objects/primitive_sphere.cgf</Path>
   <Path>%engine%/engineassets/texturemsg/defaultnouvs.dds</Path>
   <Path>%engine%/engineassets/texturemsg/defaultsolids.mtl</Path>
   <Path>%engine%/engineassets/textures/grey.dds</Path>
-  <Path>%engine%/engineassets/textures/hiteffect_areas.dds</Path>
   <Path>%engine%/engineassets/textures/lights/softedge.dds</Path>
   <Path>%engine%/engineassets/textures/skys/night/half_moon.dds</Path>
   <Path usageCount="1">Libs/environmentpresets/24cycle.env</Path>
-  <Path>animations/motusanims/jog_fwd_3p.caf</Path>
-  <Path>animations/motusanims/rifleanims/walkcrossrifleaim_fwd_rgt_3p.caf</Path>
-  <Path>animations/motusanims/steprotate/steprotate_rgt_135_3p.caf</Path>
-  <Path>animations/motusanims/strafe/jogstrafe_rgt_3p.caf</Path>
   <Path>editor/resourcecache/materials/domino_ddn.dds</Path>
   <Path>editor/resourcecache/materials/domino_diff.dds</Path>
   <Path>editor/resourcecache/materials/gymfloor_ddna.dds</Path>
@@ -46,7 +37,6 @@
   <Path>materials/domino/2.mtl</Path>
   <Path>materials/domino/3.mtl</Path>
   <Path>materials/domino/4.mtl</Path>
-  <Path>materials/domino/5.mtl</Path>
   <Path>materials/domino/6.mtl</Path>
   <Path>materials/domino_ddn.dds</Path>
   <Path>materials/domino_diff.dds</Path>
@@ -68,7 +58,6 @@
   <Path>objects/domino/2.cgf</Path>
   <Path>objects/dominoes1.mtl</Path>
   <Path>objects/dominoes1.mtl</Path>
-  <Path>objects/dominoghost.mtl</Path>
   <Path>objects/dominoghost.mtl</Path>
   <Path>objects/dominomesh.cgf</Path>
   <Path>objects/lattice.cgf</Path>

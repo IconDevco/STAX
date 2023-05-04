@@ -82,7 +82,7 @@ void CDominoComponent::ProcessEvent(const SEntityEvent& event)
 
 	case Cry::Entity::EEvent::Reset:
 	{ 
-
+		Reset();
 	}
 	break;
 
@@ -165,7 +165,7 @@ void CDominoComponent::Hover(float fTime)
 //	if (distance)
 		//return;
 
-	if (m_isCursorHovered)
+	if (m_isCursorHovered || m_isSelected)
 		m_hoverHeight = .07f;
 	else
 		m_hoverHeight = 0;
@@ -184,18 +184,19 @@ void CDominoComponent::Hover(float fTime)
 void CDominoComponent::Reset()
 {
 	Physicalize();
-
+	m_currHoverHeight = m_hoverHeight = .07f;
 	m_pEntity->SetPosRotScale(m_position, m_rotation, Vec3(m_scale));
 
 }
 
 void CDominoComponent::Simulate()
 {
+	Reset();
 	m_isSimulating = true;
 	pe_action_awake awake;
 	awake.bAwake = 0;
 	m_pEntity->GetPhysics()->Action(&awake);
-
+	Reset();
 	UnlockPhysics();
 	//m_pEntity->EnablePhysics(false);
 
@@ -211,21 +212,6 @@ void CDominoComponent::EndSimulation()
 
 void CDominoComponent::LockPhysics()
 {
-	//m_pPointConstraint->Activate(true);
-	//m_pPointConstraint->ConstrainToPoint();
-
-	pe_action_add_constraint constraint;
-	constraint.flags = world_frames | constraint_no_tears;
-
-	constraint.xlimits[0] = 0;
-		constraint.xlimits[1] = 0;
-	constraint.yzlimits[0] = 0;
-	constraint.yzlimits[1] = 0;
-
-
-	m_pEntity->GetPhysics()->Action(&constraint);
-
-
 	SEntityPhysicalizeParams physParams;
 	physParams.type = PE_STATIC;
 	physParams.mass = m_mass;

@@ -28,6 +28,7 @@ namespace
 
 void CPlayerComponent::Initialize()
 {
+
 	//History.begin();
 	//History.clear();
 	CryLog("Player: Initialize");
@@ -157,16 +158,19 @@ void CPlayerComponent::ProcessEvent(const SEntityEvent& event)
 				{
 
 					if (!m_mouseDown)
-					{
 						return;
-					}
+					
 
 					if (!m_isPlacing)
 					{
 						if (!m_isPlacingFromExistingDomino)
 						{
 							if (!m_pOriginGhostDomino)
-								CreateOriginGhost(GetPositionFromPointer(true));
+							{
+								Matrix34 transform = IDENTITY;
+								transform.SetTranslation(GetPositionFromPointer(true));
+								CreateOriginGhost(transform);
+							}
 
 							UpdateOriginGhost(frameTime);
 						}
@@ -177,7 +181,6 @@ void CPlayerComponent::ProcessEvent(const SEntityEvent& event)
 
 						if (m_isDragging)
 						{
-							
 							if (m_pOriginGhostDomino)
 							{
 
@@ -230,12 +233,7 @@ void CPlayerComponent::ProcessEvent(const SEntityEvent& event)
 	}
 	break;
 
-
-
-
-
-	}
-	
+	}	
 }
 //----------------------------------------------------------------------------------
 
@@ -313,41 +311,52 @@ void CPlayerComponent::HideCursor()
 
 void CPlayerComponent::PlaceDomino(Vec3 pos)
 {
-	m_placedDominoes++;
-	SEntitySpawnParams spawnParams;
-	spawnParams.pClass = gEnv->pEntitySystem->GetClassRegistry()->GetDefaultClass();
 
-
-	spawnParams.vPosition = pos;
+	Matrix34 transform = IDENTITY;
+	transform = m_lastPlacedTransform;
+	transform.SetTranslation(pos);
+	PlaceDomino(transform);
 	
-	Vec3 dir = pos - m_lastPlacedPosition;
+
+}
+
+void CPlayerComponent::PlaceDomino(Matrix34 transform)
+{
+	m_placedDominoes++;
+
+	Vec3 dir = transform.GetTranslation() - m_lastPlacedTransform.GetTranslation();
 	dir.z = 0;
 
-		spawnParams.qRotation = Quat::CreateRotationVDir(dir);
+	SEntitySpawnParams spawnParams;
+	spawnParams.pClass = gEnv->pEntitySystem->GetClassRegistry()->GetDefaultClass();
+	spawnParams.vPosition = transform.GetTranslation();
+	spawnParams.qRotation = Quat::CreateRotationVDir(dir);
 
-		if (m_pOriginGhostDomino)
-			spawnParams.qRotation = m_pOriginGhostDomino->GetWorldRotation();
+	if (m_pOriginGhostDomino)
+		spawnParams.qRotation = m_pOriginGhostDomino->GetWorldRotation();
+
+
+	m_lastPlacedTransform.SetTranslation(transform.GetTranslation());
+
 	if (IEntity* pEntity = gEnv->pEntitySystem->SpawnEntity(spawnParams))
 	{
 		if (auto dom = pEntity->CreateComponentClass<CDominoComponent>()) {
 
 			Vec3 position = dom->GetEntity()->GetWorldPos();
+			Quat rotation = dom->GetEntity()->GetWorldRotation();
 
 			m_Dominoes.push_back(pEntity);
-
+			
 			dom->m_Index = m_placedDominoes;
 			dom->m_position = position;
+			dom->m_rotation = rotation;
 			dom->m_scale *= m_scaleModifier;
 			dom->PostUpdate();
-			
-
-
 
 		}
 	}
 
-		m_lastPlacedPosition = pos;
-
+	
 }
 
 //----------------------------------------------------------------------------------
@@ -416,32 +425,6 @@ IEntity* CPlayerComponent::GetDominoFromPointer()
 
 //----------------------------------------------------------------------------------
 
-IEntity* CPlayerComponent::SelectDomino(IEntity* pDomino)
-{
-	m_SelectedDominoes.push_back(GetDominoFromPointer());
-	pDomino->GetComponent<CDominoComponent>()->m_isSelected = true;
-	return GetDominoFromPointer();
-}
-
-//----------------------------------------------------------------------------------
-
-void CPlayerComponent::DeselectAllDominoes()
-{
-}
-
-void CPlayerComponent::RemoveDomino(IEntity* Domino)
-{
-
-
-	gEnv->pEntitySystem->RemoveEntity(Domino->GetId());
-	//m_Dominoes.shrink_to_fit();
-
-
-}
-
-
-//----------------------------------------------------------------------------------
-
 
 void CPlayerComponent::UpdateMoveDomino(Vec3 pos,float fTime)
 {
@@ -484,57 +467,41 @@ void CPlayerComponent::UpdateDebug(float fTime)
 	auxDebug->DrawSphere(GetPositionFromPointer(true) + Vec3(0, 0, offset * 3), .1f, Col_Red, true);
 
 	auxDebug->DrawSphere(GetSmoothPosition() + Vec3(0, 0, offset * 2), .1f, Col_Plum, false);
-	auxDebug->DrawSphere(m_lastPlacedPosition + Vec3(0, 0, offset * 3), .1f, Col_Cyan, false);
-	auxDebug->DrawSphere(m_firstPlacedPosition + Vec3(0, 0, offset * 4), .1f, Col_White, false);
+	auxDebug->DrawSphere(m_lastPlacedTransform.GetTranslation() + Vec3(0, 0, offset * 3), .1f, Col_Cyan, false);
+	//auxDebug->DrawSphere(m_firstPlacedPosition + Vec3(0, 0, offset * 4), .1f, Col_White, false);
 
 	if (m_isHoveringEntity())
 	{
+		if (!GetDominoFromPointer() || GetDominoFromPointer() == nullptr)
+			return;
 		//Vec3 p = GetDominoFromPointer()->GetWorldPos();
-	//	p.z += .5f;
-		pe_status_dynamics d; 
-	
-		GetDominoFromPointer()->GetPhysics()->GetStatus(&d);;
-		auxDebug->Draw2dLabel(0, xOffset * iter++, 2, Col_Yellow, false, "KG: " + ToString(d.mass));
-		//auxDebug->Draw2dLabel(0, xOffset * iter++, 2, Col_Yellow, false, "Tool Mode: " + ToString(m_activeToolMode));
+//	p.z += .5f;
+		/*
+		pe_status_dynamics dynamics;
+		if (GetDominoFromPointer()) {
+			if (auto domPhys = GetDominoFromPointer()->GetPhysics())
+				domPhys->GetStatus(&dynamics);
+		}
+		*/
 
+		pe_status_dynamics dynamics;
+		auto domino = GetDominoFromPointer();
+		if (domino != nullptr) {
+			auto domPhys = domino->GetPhysics();
+			if (domPhys != nullptr) {
+				domPhys->GetStatus(&dynamics);
+			}
+		}
 
+		auxDebug->Draw2dLabel(0, xOffset * iter++, 2, Col_Yellow, false, "KG: " + ToString(dynamics.mass));
+		//auxDebug->Draw2dLabel(0, xOffset * iter++, 2, Col_Yellow, false, "Tool Mode: " + ToString(m_activeToolMode
 	}
-
-	
 }
 
 //----------------------------------------------------------------------------------
 
-/*
-void CPlayerComponent::DisableDominoPhysics()
-{
-	CryLog("Disable Physics");
-	m_isDominoPhysicsEnabled = false;
-	for (IEntity* pDom : m_Dominoes) {
-
-		pDom->GetComponent<CDominoComponent>()GetPhysics()->Action(&awake);
-		
-	}
-	
-}
-
-void CPlayerComponent::EnableDominoPhysics()
-{
-	CryLog("Enable Physics");
-	m_isDominoPhysicsEnabled = true;
-	for (IEntity* pDom : m_Dominoes) {
-		pDom->EnablePhysics(true);
-		pe_action_awake awake;
-		awake.bAwake = 0;
-		pDom->GetPhysics()->Action(&awake);
-	
-	}
-	
-}
-*/
 void CPlayerComponent::AddForceToDomino(IEntity* dom, float force)
 {
-
 	if (!dom)
 		return;
 	if (!dom->GetPhysics())
@@ -553,13 +520,15 @@ void CPlayerComponent::AddForceToDomino(IEntity* dom, float force)
 
 void CPlayerComponent::ChangeToolMode(int index)
 {
-	
+	if(m_isSimulating)
+		EndSimulation();
+
 	m_activeToolMode = (EToolMode)m_activeIndex;
 	m_isSimulating = m_activeToolMode == EToolMode::eTM_Simulating ? true : false;
+	
 	if (m_isSimulating)
 		BeginSimulation();
-	else
-		EndSimulation();
+
 }
 
 void CPlayerComponent::BeginSmoothPosition(Vec3 origin)
@@ -580,7 +549,12 @@ Vec3 CPlayerComponent::GetSmoothPosition()
 	return m_smoothCurrentPosition;
 }
 
+void CPlayerComponent::UpgradeDominoToDouble(IEntity* pDomino)
+{
 
+
+
+}
 
 //----------------------------------------------------------------------------------
 
@@ -621,7 +595,7 @@ void CPlayerComponent::UpdateCursorGhost(float fTime)
 		return;
 
 	//Vec3 dir = m_pOriginGhostDomino->GetWorldPos() - GetPositionFromPointer(true);
-	Vec3 dir = m_lastPlacedPosition - GetSmoothPosition();
+	Vec3 dir = m_lastPlacedTransform.GetTranslation() - GetSmoothPosition();
 	dir.z = 0;
 	//m_pCursorGhostDomino->SetPosRotScale(GetPositionFromPointer(true), Quat::CreateRotationVDir(dir), Vec3(m_scaleModifier));
 	m_pCursorGhostDomino->SetPosRotScale(GetSmoothPosition(), Quat::CreateRotationVDir(dir), Vec3(m_scaleModifier));
@@ -643,7 +617,7 @@ void CPlayerComponent::DestroyCursorGhost()
 
 void CPlayerComponent::UpdateActivePlacementPosition(Vec3 cursorPosition, float fTime)
 {
-	float distanceToLastPlacedDomino = Distance::Point_Point(GetSmoothPosition(), m_lastPlacedPosition);
+	float distanceToLastPlacedDomino = Distance::Point_Point(GetSmoothPosition(), m_lastPlacedTransform.GetTranslation());
 	
 	if (m_isMoving)
 		return;
@@ -651,15 +625,15 @@ void CPlayerComponent::UpdateActivePlacementPosition(Vec3 cursorPosition, float 
 	
 	if (distanceToLastPlacedDomino > m_placementDistance)
 	{
-			Vec3 dir = GetSmoothPosition() - m_lastPlacedPosition;
+			Vec3 dir = GetSmoothPosition() - m_lastPlacedTransform.GetTranslation();
 			//dir.y *= -1;
 			dir.normalize();
 
 			Vec3 n = dir * m_placementDistance;
-			Vec3 p = m_lastPlacedPosition + n;
+			Vec3 p = m_lastPlacedTransform.GetTranslation() + n;
 			m_firstPlaced = true;
 			PlaceDomino(p);
-			m_lastPlacedPosition = p;
+			m_lastPlacedTransform.SetTranslation(p);
 		}
 	
 
@@ -718,9 +692,7 @@ Vec3 CPlayerComponent::GetPositionFromPointer(bool ignoreDominoes)
 
 }
 
-
 //----------------------------------------------------------------------------------
-
 
 void CPlayerComponent::Revive(const Matrix34& transform)
 {
@@ -745,18 +717,18 @@ void CPlayerComponent::Revive(const Matrix34& transform)
 
 }
 
-void CPlayerComponent::CreateOriginGhost(Vec3 p)
+void CPlayerComponent::CreateOriginGhost(Matrix34 transform)
 {
 	CryLog("Attempting to create origin ghost");
 	if (m_pOriginGhostDomino)
 		return;
 	CryLog("Successfully created origin ghost");
-	m_lastPlacedPosition = p;
+	m_lastPlacedTransform = transform;
 	SEntitySpawnParams spawnParams;
 	spawnParams.pClass = gEnv->pEntitySystem->GetClassRegistry()->GetDefaultClass();
-	spawnParams.vPosition = p;
+	spawnParams.vPosition = transform.GetTranslation();
 	spawnParams.vScale = Vec3(m_scaleModifier);
-	Vec3 dir = p - GetSmoothPosition();
+	Vec3 dir = transform.GetTranslation() - GetSmoothPosition();
 	dir.z = 0;
 	spawnParams.qRotation = Quat::CreateRotationVDir(dir);
 
@@ -794,7 +766,6 @@ void CPlayerComponent::DestroyOriginGhost()
 	m_pOriginGhostDomino = nullptr;
 	
 }
-
 
 //----------------------------------------------------------------------------------
 
@@ -839,18 +810,48 @@ void CPlayerComponent::BindInputs()
 
 	m_pInputComponent->RegisterAction("player", "mouse_scrolldown", [this](int activationMode, float value)
 		{
+			if (activationMode == eAAM_OnPress)
+			{
+				if (m_isShiftPressed)
+				{
+					m_scaleModifier -= .1f;
+					m_scaleModifier = CLAMP(m_scaleModifier, 0.3f, 1.f);
+				}
 
-			m_scrollY++;
-			m_scrollY = m_scrollY * m_scrollSpeedMultiplier;
+				if (!m_isShiftPressed && !m_isAltPressed && !m_isCtrlPressed)
+				{
+					m_scrollY++;
+					m_scrollY = m_scrollY * m_scrollSpeedMultiplier;
+				}
 
+			}
+
+		
 
 		});
 	m_pInputComponent->BindAction("player", "mouse_scrolldown", eAID_KeyboardMouse, EKeyId::eKI_MouseWheelDown);
 
 	m_pInputComponent->RegisterAction("player", "mouse_scrollup", [this](int activationMode, float value)
 		{
-			m_scrollY--;
-			m_scrollY = m_scrollY * m_scrollSpeedMultiplier;
+			if (activationMode == eAAM_OnPress)
+			{
+				if (m_isShiftPressed)
+				{
+
+					m_scaleModifier += .1f;
+					m_scaleModifier = CLAMP(m_scaleModifier, 0.3f, 1.f);
+
+				}
+
+				if (!m_isShiftPressed && !m_isAltPressed && !m_isCtrlPressed)
+				{
+					m_scrollY--;
+					m_scrollY = m_scrollY * m_scrollSpeedMultiplier;
+				}
+
+			}
+
+		
 
 		});
 	m_pInputComponent->BindAction("player", "mouse_scrollup", eAID_KeyboardMouse, EKeyId::eKI_MouseWheelUp);
@@ -900,32 +901,50 @@ void CPlayerComponent::BindInputs()
 		});
 	m_pInputComponent->BindAction("player", "undo", eAID_KeyboardMouse, EKeyId::eKI_Z);
 		
-	m_pInputComponent->RegisterAction("player", "ScaleUp", [this](int activationMode, float value)
+	m_pInputComponent->RegisterAction("player", "ctrl", [this](int activationMode, float value)
 		{
 			if (activationMode == eAAM_OnPress)
 			{
-				m_scaleModifier += .1f;
-				m_scaleModifier = CLAMP(m_scaleModifier, 0.3f, 1.f);
-				//m_placementDistance = CLAMP(m_placementDistance += m_placementDistanceStep * .5f,.1f,10.f);//* m_scaleModifier;
+				m_isCtrlPressed = true;
+			}
+			if (activationMode == eAAM_OnRelease)
+			{
+				m_isCtrlPressed = false;
 			}
 
 		});
+	m_pInputComponent->BindAction("player", "ctrl", eAID_KeyboardMouse, EKeyId::eKI_LCtrl);
 
-	m_pInputComponent->BindAction("player", "ScaleUp", eAID_KeyboardMouse, EKeyId::eKI_T);
 
-	m_pInputComponent->RegisterAction("player", "ScaleDown", [this](int activationMode, float value)
+	m_pInputComponent->RegisterAction("player", "shift", [this](int activationMode, float value)
 		{
 			if (activationMode == eAAM_OnPress)
 			{
-				m_scaleModifier -= .1f;
-				m_scaleModifier = CLAMP(m_scaleModifier, 0.3f, 1.f);
-				//m_placementDistance = CLAMP(m_placementDistance -= m_placementDistanceStep * .5f, .1f, 10.f);
+				m_isShiftPressed = true;
+			}
+			if (activationMode == eAAM_OnRelease)
+			{
+				m_isShiftPressed = false;
 			}
 
+
 		});
+	m_pInputComponent->BindAction("player", "shift", eAID_KeyboardMouse, EKeyId::eKI_LShift);
 
-	m_pInputComponent->BindAction("player", "ScaleDown", eAID_KeyboardMouse, EKeyId::eKI_G);
+	m_pInputComponent->RegisterAction("player", "alt", [this](int activationMode, float value)
+		{
+			if (activationMode == eAAM_OnPress)
+			{
+				m_isAltPressed = true;
+			}
+			if (activationMode == eAAM_OnRelease)
+			{
+				m_isAltPressed = false;
+			}
 
+
+		});
+	m_pInputComponent->BindAction("player", "alt", eAID_KeyboardMouse, EKeyId::eKI_LAlt);
 
 	m_pInputComponent->RegisterAction("player", "pancam", [this](int activationMode, float value)
 		{
@@ -975,15 +994,19 @@ void CPlayerComponent::BindInputs()
 					{
 						m_isPlacingFromExistingDomino = true;
 
-						m_lastPlacedPosition = GetPositionFromPointer(true);
-						m_clickPosition = m_lastPlacedPosition;
+						m_lastPlacedTransform.SetTranslation(GetPositionFromPointer(true));
+						m_clickPosition = m_lastPlacedTransform.GetTranslation();
 						//CreateOriginGhost(GetDominoFromPointer()->GetWorldPos());
 						CreateCursorGhost(GetDominoFromPointer()->GetWorldPos());
 						//RemoveDomino(GetDominoFromPointer());
 					}
 
 					if (!m_isHoveringEntity())
-						CreateOriginGhost(GetPositionFromPointer(true));
+					{
+						Matrix34 transform = IDENTITY;
+						transform.SetTranslation(GetPositionFromPointer(true));
+						CreateOriginGhost(transform);
+					}
 
 					m_clickPosition = GetPositionFromPointer(false);
 
@@ -992,7 +1015,7 @@ void CPlayerComponent::BindInputs()
 				case eTM_Simulating:
 				{
 					if (m_isHoveringEntity())
-						AddForceToDomino(GetDominoFromPointer(), .1f);
+						AddForceToDomino(GetDominoFromPointer(), 0.1f *m_scaleModifier);
 				}
 				break;
 
@@ -1011,6 +1034,7 @@ void CPlayerComponent::BindInputs()
 				{
 					if (m_halfSelectDomino)
 					{
+						if(GetDominoFromPointer())
 						SelectDomino(GetDominoFromPointer());
 					}
 

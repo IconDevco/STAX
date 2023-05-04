@@ -16,6 +16,15 @@
   <Physics sound_obstruction="0.5" />
  </SurfaceType>
  
+ <SurfaceType name="mat_domino">
+  <Physics friction="0.1" />
+ </SurfaceType> 
+ 
+  <SurfaceType name="mat_wood">
+  <Physics friction="0.1" />
+ </SurfaceType> 
+ 
+ 
  <SurfaceType name="mat_bullet">
   <Physics friction="0.1" />
  </SurfaceType>

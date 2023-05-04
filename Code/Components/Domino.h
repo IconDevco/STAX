@@ -30,7 +30,7 @@ public:
 	{
 		desc.SetGUID("{B53A9A5F-F27A-42CB-82C7-B1E379C41A2A}"_cry_guid);
 		desc.SetLabel("Domino");
-		desc.AddMember(&CDominoComponent::m_mass, 'mass', "Mass","Mass","Mass",1);
+		desc.AddMember(&CDominoComponent::m_mass, 'mass', "Mass","Mass","Mass",.1);
 		desc.AddMember(&CDominoComponent::m_scale, 'scle', "Scale","Scale","Scale",1);
 		desc.AddMember(&CDominoComponent::m_ForceSimulate, 'sim', "Simulate","Force Simulate","Mass",false);
 	}
@@ -48,8 +48,8 @@ public:
 	float m_scale = 1.f;
 	void PostUpdate();
 
-	float m_hoverHeight = 0;
-	float m_currHoverHeight = .2f;
+	float m_hoverHeight = 0.7f;
+	float m_currHoverHeight = 0.7f;
 	bool m_isCursorHovered = false;
 	void Hover(float fTime);
 

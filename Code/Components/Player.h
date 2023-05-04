@@ -122,7 +122,7 @@ public:
 
 	void Revive(const Matrix34& transform);
 
-	void CreateOriginGhost(Vec3 p);
+	void CreateOriginGhost(Matrix34 transform);
 	void UpdateOriginGhost(float fTime);
 	void DestroyOriginGhost();
 	IEntity* m_pOriginGhostDomino = nullptr;
@@ -140,8 +140,6 @@ protected:
 	void InitializeLocalPlayer();
 
 protected:
-
-
 	/// Cryengine Shit ///
 
 	struct RemoteReviveParams
@@ -180,19 +178,13 @@ protected:
 
 	////////////////////// MODE /////////////////////////////
 public:
-
-
-
 	void ShowCursor();
 	void HideCursor();
 
 public:
 
-
-
 protected:
 	void UpdateZoom(float fTime);
-
 
 	void UpdateCameraTargetGoal(float fTime);
 
@@ -208,8 +200,8 @@ protected:
 	float m_scrollY;
 	float m_scrollSpeedMultiplier = 0.2f;
 
-	float m_desiredViewDistance = 30;
-	float m_currViewDistance = 30;
+	float m_desiredViewDistance = 8;
+	float m_currViewDistance = 8;
 
 	float m_zoomTension = 0.3f;//1.7f;
 
@@ -233,10 +225,8 @@ protected:
 
 	//ILINE ECameraMode GetCameraMode() const { return m_currentCameraMode; }
 
-
 	Vec3 m_moveGoalPosition = Vec3(0);
 	Vec3 m_moveCurrentPosition = Vec3(0);
-
 
 	void UpdateActivePlacementPosition(Vec3 o, float fTime);
 
@@ -249,15 +239,10 @@ protected:
 	DynArray<IEntity*> m_JustPlacedDominoes;
 	IEntity* m_pFirstPlacedDomino = nullptr;
 
-	Vec3 m_lastPlacedPosition = Vec3(0);
-	Vec3 m_firstPlacedPosition = Vec3(0);
+	Matrix34 m_lastPlacedTransform = IDENTITY;
 
-	void PlaceDomino(Vec3 pos);
+	//Vec3 m_firstPlacedTransform;
 
-	bool m_firstPlaced = false;
-
-	float m_placementDistance = .1f;
-	float m_placementDistanceStep = .1f;
 	
 	int m_placedDominoes = 0;
 
@@ -266,6 +251,7 @@ protected:
 	void ResetDominoes();
 
 	bool m_isSimulating = false;
+
 	/*
 	struct SHistorySet 
 	{
@@ -282,6 +268,7 @@ protected:
 	//SHistorySet* m_ActiveHistory = nullptr;
 	//DynArray<SHistorySet*> History;
 	*/
+	
 	bool m_mouseDown = false;
 	Vec3 m_clickPosition = Vec3(0);
 	IEntity* m_halfSelectDomino;// = false;
@@ -292,15 +279,8 @@ protected:
 	}
 
 	IEntity* GetDominoFromPointer();
-	IEntity* SelectDomino(IEntity* pDomino);
-	
-	DynArray<IEntity*> m_SelectedDominoes;
 
-	void DeselectDomino(IEntity* pDomino);
-	void DeselectAllDominoes();
-	void RemoveDomino(IEntity* pDomino);
-	void DeleteDomino(IEntity* pDomino) { RemoveDomino(pDomino); }
-	void DestroyDomino(IEntity* pDomino){ RemoveDomino(pDomino); }
+
 
 
 	//void InsertHistorySet(SHistorySet* historySet);
@@ -333,7 +313,7 @@ protected:
 	Vec3 m_lastFrameMovePosition = Vec3(0);
 	void AddForceToDomino(IEntity* dom, float force);
 
-	float m_scaleModifier = 0.5f;
+	float m_scaleModifier = 0.2f;
 
 	enum EToolMode {
 		eTM_Editing, //moving, scaling, coloring
@@ -343,7 +323,7 @@ protected:
 	};
 	
 	EToolMode m_activeToolMode = eTM_Editing;
-	int m_activeIndex = 1;
+	int m_activeIndex = 0;
 
 	bool moveSingleton = false;
 	IEntity* m_lastHoveredDomino=nullptr;
@@ -355,19 +335,24 @@ protected:
 	bool m_isDragging = false;
 	float m_dragThreshold = 0.1f;
 	
-
-	Vec3 m_nextPlacePosition = Vec3(0);
-	
+	Vec3 m_nextPlacePosition = Vec3(0);	
 	
 	Vec3 m_smoothGoalPosition = Vec3(0);
 	Vec3 m_smoothCurrentPosition = Vec3(0);
-
 	
 	void BeginSmoothPosition(Vec3 origin);
 	void UpdateSmoothPoisition(float fTime);
 	Vec3 GetSmoothPosition();
 
 	bool m_isPlacingFromExistingDomino = false;
+
+	bool m_isShiftPressed =false;
+	bool m_isAltPressed =false;
+	bool m_isCtrlPressed =false;
+
+	Quat m_lockedRotation = IDENTITY;
+
+	void UpgradeDominoToDouble(IEntity* pDomino);
 
 };
 
