@@ -17,4 +17,3 @@
 #include "DefaultComponents/Physics/CharacterControllerComponent.h"
 #include <CryAISystem/Components/IEntityNavigationComponent.h>
 
-

@@ -23,6 +23,11 @@
 
 #include "CryCore/Containers/CryArray.h"
 #include "PersistantDebug.h"
+#include "DominoPlacer.h"
+#include "DominoManager.h"
+#include "DominoEditor.h"
+
+
 
 ////////////////////////////////////////////////////////
 // Represents a player participating in gameplay
@@ -122,15 +127,8 @@ public:
 
 	void Revive(const Matrix34& transform);
 
-	void CreateOriginGhost(Matrix34 transform);
-	void UpdateOriginGhost(float fTime);
-	void DestroyOriginGhost();
-	IEntity* m_pOriginGhostDomino = nullptr;
 
-	void CreateCursorGhost(Vec3 p);
-	void UpdateCursorGhost(float fTime);
-	void DestroyCursorGhost();
-	IEntity* m_pCursorGhostDomino = nullptr;
+
 
 protected:
 	void HandleInputFlagChange(CEnumFlags<EInputFlag> flags, CEnumFlags<EActionActivationMode> activationMode, EInputFlagType type = EInputFlagType::Hold);
@@ -164,7 +162,6 @@ protected:
 	Cry::DefaultComponents::CCameraComponent* m_pCameraComponent = nullptr;
 	Cry::DefaultComponents::CInputComponent* m_pInputComponent = nullptr;
 
-protected:
 	CEnumFlags<EInputFlag> m_inputFlags;
 	Vec2 m_mouseDeltaRotation;
 
@@ -177,74 +174,13 @@ protected:
 	const char* m_playerName = "Moose";
 
 	////////////////////// MODE /////////////////////////////
-public:
-	void ShowCursor();
-	void HideCursor();
-
-public:
 
 protected:
-	void UpdateZoom(float fTime);
 
-	void UpdateCameraTargetGoal(float fTime);
 
-	void UpdateTacticalViewDirection(float frameTime);
-
-	void UpdateCamera(float frameTime);
-
-	Vec3 GetTacticalCameraMovementInputDirection();
-	//Vec2 GetPilotMovementInputDirection();
-
-	bool m_lookActive;
-	const float m_rotationSensitivity = 0.002f;
-	float m_scrollY;
-	float m_scrollSpeedMultiplier = 0.2f;
-
-	float m_desiredViewDistance = 8;
-	float m_currViewDistance = 8;
-
-	float m_zoomTension = 0.3f;//1.7f;
-
-	//How close can a camera get
-	float m_minViewDistance = 1;
-
-	float m_minTacticalDistance = 1;
-	float m_maxTacticalDistance = 12;
-	//float MAX_MAP_DISTANCE = 200;
-
-	Vec3 m_cameraCurrentPosition;
-	Vec3 m_cameraGoalPosition;
-
-	float m_goalTension = 2.f;
-	float m_goalSpeed = 2.f;
-	
-	Matrix34 m_desiredCameraTranform;
-
-	float m_scrollSensitivity;
-	float m_panSensitivity = 70;
-
-	//ILINE ECameraMode GetCameraMode() const { return m_currentCameraMode; }
-
-	Vec3 m_moveGoalPosition = Vec3(0);
-	Vec3 m_moveCurrentPosition = Vec3(0);
-
-	void UpdateActivePlacementPosition(Vec3 o, float fTime);
-
-	//if a fleet is selected, then you can select any vessel in the fleet and drive it
-	void UpdateCursorPointer();
-	Vec3 GetPositionFromPointer(bool ignoreDominoes);
-
-	bool m_placementActive = false;
-	DynArray<IEntity*> m_Dominoes;
 	DynArray<IEntity*> m_JustPlacedDominoes;
 	IEntity* m_pFirstPlacedDomino = nullptr;
 
-	Matrix34 m_lastPlacedTransform = IDENTITY;
-
-	//Vec3 m_firstPlacedTransform;
-
-	
-	int m_placedDominoes = 0;
 
 	void BeginSimulation();
 	void EndSimulation();
@@ -252,39 +188,7 @@ protected:
 
 	bool m_isSimulating = false;
 
-	/*
-	struct SHistorySet 
-	{
-		int m_index = 0;
-		DynArray<IEntity*> m_Dominoes;
-		DynArray<Matrix34> m_moveHistory;
-		enum class EHistoryType {
-			Move,
-			Place
-		};
-		EHistoryType type;
-	};
-
-	//SHistorySet* m_ActiveHistory = nullptr;
-	//DynArray<SHistorySet*> History;
-	*/
-	
-	bool m_mouseDown = false;
-	Vec3 m_clickPosition = Vec3(0);
-	IEntity* m_halfSelectDomino;// = false;
-
-	bool m_isHoveringEntity()
-	{
-		return GetDominoFromPointer() ? true : false;
-	}
-
-	IEntity* GetDominoFromPointer();
-
-
-
-
-	//void InsertHistorySet(SHistorySet* historySet);
-	int m_historyStep= 0;
+	int m_historyStep = 0;
 
 	int m_undoSteps = 0;
 	//void Undo(int stepToRemove);
@@ -295,13 +199,8 @@ protected:
 	void UpdateDebug(float fTime);
 	bool m_readyToSelect = false;
 	IEntity* m_readySelectDomino = nullptr;
-	
-	
-	void UpdateMoveDomino(Vec3 pos,float fTime);
 
-	bool m_isMoving = false;
 
-	Vec3 m_tempMoveDir = Vec3(0);
 
 	bool m_isDominoPhysicsEnabled = false;
 
@@ -310,49 +209,309 @@ protected:
 
 	IRenderAuxGeom* auxDebug;
 
-	Vec3 m_lastFrameMovePosition = Vec3(0);
 	void AddForceToDomino(IEntity* dom, float force);
-
-	float m_scaleModifier = 0.2f;
 
 	enum EToolMode {
 		eTM_Editing, //moving, scaling, coloring
 		eTM_Placing, //only placing. placing off a domino continues from that line
 		eTM_Simulating //clickable and physics enabled
-
 	};
-	
+
 	EToolMode m_activeToolMode = eTM_Editing;
 	int m_activeIndex = 0;
 
 	bool moveSingleton = false;
-	IEntity* m_lastHoveredDomino=nullptr;
+	IEntity* m_lastHoveredDomino = nullptr;
 	void ChangeToolMode(int index);
 
 	bool m_isPlacing = false;
 
+	Vec3 m_nextPlacePosition = Vec3(0);
+
+	bool m_isPlacingFromExistingDomino = false;
+
+	bool m_isShiftPressed = false;
+	bool m_isAltPressed = false;
+	bool m_isCtrlPressed = false;
+
+
+	float m_scaleModifier = 0.2f;
+
+	Vec3 m_clickPosition = Vec3(0);
+	IEntity* m_halfSelectDomino;// = false;
+
+	bool m_isHoveringEntity()
+	{
+		return GetDominoFromPointer() ? true : false;
+	}
+
+	Vec3 m_smoothGoalPosition = Vec3(0);
+	Vec3 m_smoothCurrentPosition = Vec3(0);
+
+	IEntity* m_pCursorGhostDomino = nullptr;
+
+	Vec3 m_lastFrameMovePosition;
+
 	Vec3 m_dragStartPosition = Vec3(0);
 	bool m_isDragging = false;
 	float m_dragThreshold = 0.1f;
+
+	DynArray<IEntity*> m_SelectedDominoes;
+
+	bool m_isMoving = false;
+	Vec3 m_tempMoveDir = Vec3(0);
+
+	void UpdateMoveDomino(Vec3 pos, float fTime);
+
+	DynArray<IEntity*> m_Dominoes;
+
+
+
+	void MouseDown();
+	void MouseUp();
+
+
+
+	//SIMULATION
+
+//------------------------------------------------------
+//----------------------SNAPSHOT------------------------
+//------------------------------------------------------
+
+	enum ESnapshotType
+	{
+		remove,
+		add,
+		move,
+		paint,
+		eST_MAX
+	};
+
+	struct Snapshot {
+	public:
+		DynArray<IEntity*> m_Dominoes;
+		DynArray<Vec3> m_positions;
+		DynArray<bool> m_deleted;
+
+		ESnapshotType m_snapshotType = eST_MAX;
+
+	};
+
 	
-	Vec3 m_nextPlacePosition = Vec3(0);	
+
+	DynArray<Snapshot*> m_snapshots;
 	
-	Vec3 m_smoothGoalPosition = Vec3(0);
-	Vec3 m_smoothCurrentPosition = Vec3(0);
+	// visible index
+	int activeIndex = -1;
+
+	void TakeSnapshot(DynArray<IEntity*>& entities, ESnapshotType snapshotType);
+
+	void Undo(int activeSnapshot);
+	void Redo(int nextActiveSnapshot);
+
+	DynArray<IEntity*> m_EntitiesMarkedForDeletion;
+
+
+
+	//------------------------------------------------------
+	//----------------------PLACEMENT-----------------------
+	//------------------------------------------------------
+public:
+	void UpgradeDominoToDouble(IEntity* pDomino);
+
+	void PlaceDomino(Vec3 pos);
+
+	void CreateOriginGhost(Vec3 origin);
+	void UpdateOriginGhost(float fTime);
+	void DestroyOriginGhost();
+
+	void CreateCursorGhost(Vec3 origin);
+	void UpdateCursorGhost(float fTime);
+	void DestroyCursorGhost();
+
+	void UpdateActivePlacementPosition(Vec3 o, float fTime);
+
+protected:
+	IEntity* m_pOriginGhostDomino = nullptr;
+
+	float m_placementDistance = .15f;
+
+	int m_totalPlacedDominoes = 0;
+	Vec3 m_lastPlacedPosition = Vec3(0);
+	//Vec3 m_firstPlacedPosition = Vec3(0);
+	Vec3 m_firstPlacedPosition = Vec3(0);
+	bool m_firstPlaced = false;
+	Quat m_lockedRotation = IDENTITY;
+	//Vec3 m_lastPlacedPosition = Vec3(0);
+	bool m_placementActive = false;
+
+	int m_dominoesJustPlaced = 0;
+	DynArray<IEntity*> m_pDominoesJustPlaced;;
+
+	bool m_isDrawingShape = false;
+
+	void DrawLine(Vec3 start);
+
+	Vec3 lerp(const Vec3& start, const Vec3& end, float t)
+	{
+		Vec3 result;
+		result.x = start.x + t * (end.x - start.x);
+		result.y = start.y + t * (end.y - start.y);
+		result.z = start.z + t * (end.z - start.z);
+		return result;
+	}
+	/*
+	std::vector<Vec3> createPointsAlongLine(const Vec3& start, const Vec3& end, float distance) {
+		float lineLength = std::sqrt(
+			std::pow(end.x - start.x, 2) +
+			std::pow(end.y - start.y, 2) +
+			std::pow(end.z - start.z, 2)
+		);
+
+		int numPoints = static_cast<int>(lineLength / distance) + 1;
+
+		std::vector<Vec3> points;
+		points.reserve(numPoints);
+
+		for (int i = 0; i < numPoints; ++i) {
+			float t = static_cast<float>(i) / (numPoints - 1);  // Calculate interpolation parameter
+			Vec3 point = lerp(start, end, t);  // Interpolate point
+			points.push_back(point);
+		}
+
+		return points;
+		}
+		*/
+
 	
+
+//------------------------------------------------------
+//------------------CAMERA & MOVEMENT-------------------
+//------------------------------------------------------
+public:
+	void UpdateZoom(float fTime);
+
+	void UpdateCameraTargetGoal(float fTime);
+
+	void UpdateTacticalViewDirection(float frameTime);
+
+	void UpdateCamera(float frameTime);
+
+	Vec3 GetTacticalCameraMovementInputDirection();
+
+
+protected:
+	bool m_lookActive;
+	const float m_rotationSensitivity = 0.002f;
+	float m_scrollY;
+	float m_scrollSpeedMultiplier = 0.2f;
+
+	float m_desiredViewDistance = 2;
+	float m_currViewDistance = 2;
+
+	float m_zoomTension = 0.3f;//1.7f;
+
+	float m_minViewDistance = .2f;
+
+	float m_minTacticalDistance = .2f;
+	float m_maxTacticalDistance = 12;
+
+	Vec3 m_cameraCurrentPosition;
+	Vec3 m_cameraGoalPosition;
+
+	float m_goalTension = 2.f;
+	float m_goalSpeed = 2.f;
+
+	Matrix34 m_desiredCameraTranform;
+
+	float m_scrollSensitivity;
+	float m_panSensitivity = 70;
+
+	Vec3 m_moveGoalPosition = Vec3(0);
+	Vec3 m_moveCurrentPosition = Vec3(0);
+
+
+
+//------------------------------------------------------
+//-----------------------PAINTING------------------------
+//------------------------------------------------------
+
+
+
+
+//------------------------------------------------------
+//-----------------------EDITING------------------------
+//------------------------------------------------------
+public:
+		void DeselectDomino(IEntity* pDomino);
+		void DeselectAllDominoes();
+		void RemoveDomino(IEntity* pDomino);
+		//void DeleteDomino(IEntity* pDomino) { RemoveDomino(pDomino); }
+		
+		//This will hide dominoes and restore them if undone
+		void DeleteDominoes(DynArray<IEntity*> pDominoes);// 
+		void UndeleteDominoes(DynArray<IEntity*> pDominoes);// 
+	
+		void DestroyDomino(IEntity* pDomino) { RemoveDomino(pDomino); }
+
+		IEntity* SelectDomino(IEntity* pDomino);
+
+		void DrawMarquee();
+		void BeginMarquee();
+
+		void EndSelection();
+
+		bool IsPointWithinMarquee(const Vec3& pt, const Vec2& start, const Vec2& end)
+		{
+			float minX = std::min(start.x, end.x);
+			float maxX = std::max(start.x, end.x);
+			float minY = std::min(start.y, end.y);
+			float maxY = std::max(start.y, end.y);
+
+			return (pt.x >= minX && pt.x <= maxX &&
+				pt.y >= minY && pt.y <= maxY);
+		}
+
+
+		bool m_isMarquee;
+		Vec2 m_marqueeStart;
+		Vec2 m_marqueeEnd;
+
+		Vec3 m_marqueeOrigin = Vec3(0);
+		Vec2 GetCursorScreenPosition();
+
+		void CopySelection();
+		
+		void MoveSelection();
+
+		Vec2 debugScreenPos;
+
+//------------------------------------------------------
+//-----------------------CURSOR-------------------------
+//------------------------------------------------------
+public:
 	void BeginSmoothPosition(Vec3 origin);
 	void UpdateSmoothPoisition(float fTime);
 	Vec3 GetSmoothPosition();
 
-	bool m_isPlacingFromExistingDomino = false;
+	void ShowCursor();
+	void HideCursor();
 
-	bool m_isShiftPressed =false;
-	bool m_isAltPressed =false;
-	bool m_isCtrlPressed =false;
 
-	Quat m_lockedRotation = IDENTITY;
 
-	void UpgradeDominoToDouble(IEntity* pDomino);
+	Vec3 GetPositionFromPointer(bool ignoreDominoes);
+
+	IEntity* GetDominoFromPointer();
+
+
+	void DebugCursorElements(float fTime);
+
+protected:
+	bool m_mouseDown = false;
+
+
+	//MANAGEMENT
+
 
 };
 

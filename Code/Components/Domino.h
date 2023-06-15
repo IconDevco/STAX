@@ -42,7 +42,7 @@ public:
 	void Physicalize();
 	void SetScale(float y);
 public:
-	int m_Index = 0;
+	
 	float m_mass = 1;
 	bool m_ForceSimulate = false;
 	float m_scale = 1.f;
@@ -69,8 +69,12 @@ public:
 	bool m_isOutlined = false;
 	void UpdateOutline();
 	
-	bool m_isSelected = false;
+	int m_index = -1;
+	int m_selectionIndex = -1;
 
+	bool m_isSelected = false;
+	
+	bool m_markedForDeletion = false;
 	//Cry::DefaultComponents::CPointConstraintComponent* m_pPointConstraint = nullptr;
 
 };
