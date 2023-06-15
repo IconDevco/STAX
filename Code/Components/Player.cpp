@@ -439,7 +439,7 @@ void CPlayerComponent::TakeSnapshot(DynArray<IEntity*>& modifiedDominoes, ESnaps
 	Snapshot* snapshot = new Snapshot();
 
 	snapshot->m_snapshotType = snapshotType;
-
+	CryLog("Attempting to snapshot index: %i", m_snapshots.size());
 	switch (snapshotType)
 	{
 	case ESnapshotType::remove:
@@ -448,7 +448,6 @@ void CPlayerComponent::TakeSnapshot(DynArray<IEntity*>& modifiedDominoes, ESnaps
 			snapshot->m_deleted.push_back(true);
 			snapshot->m_Dominoes.push_back(pDomino);
 			
-		
 		}
 	}
 		break;
@@ -482,81 +481,83 @@ void CPlayerComponent::TakeSnapshot(DynArray<IEntity*>& modifiedDominoes, ESnaps
 
 	m_snapshots.push_back(snapshot);
 
-	activeIndex++;
+	activeIndex = m_snapshots.size();
 }
 
 void CPlayerComponent::Undo(int snapshotIndex)
 {
+	CryLog("Attempting to undo active index: %i", snapshotIndex);
 
-	auto snapshot = m_snapshots[snapshotIndex];
-	ESnapshotType snapshotType = snapshot->m_snapshotType;
-
-
-	switch (snapshotType)
+	if (snapshotIndex >= 0 && snapshotIndex < m_snapshots.size())
 	{
-	case ESnapshotType::remove:
-	{
+		Snapshot* snapshot = m_snapshots[snapshotIndex];
+		ESnapshotType snapshotType = snapshot->m_snapshotType;
 
-	}
-	break;
-	case ESnapshotType::add:
-	{
-		DeleteDominoes(snapshot->m_Dominoes);
+		switch (snapshotType)
+		{
+		case ESnapshotType::remove:
+		{
 
-	}
-	break;
-	case ESnapshotType::move:
-
-	{
-
-
-	}
+		}
 		break;
-	case ESnapshotType::paint:
-		// Process paint snapshot
-		// ...
+		case ESnapshotType::add:
+		{
+			DeleteDominoes(snapshot->m_Dominoes);
+
+		}
 		break;
-	default:
-		// Handle unknown snapshot type
-		// ...
+		case ESnapshotType::move:
+
+		{
+
+
+		}
 		break;
-	}
+		case ESnapshotType::paint:
+			// Process paint snapshot
+			// ...
+			break;
+		default:
+			// Handle unknown snapshot type
+			// ...
+			break;
+		}
+
+		//m_snapshots.erase(m_snapshots.size());
 
 
 
+		/*
+		if (snapshotIndex >= 1 && snapshotIndex <= activeIndex) {
+			Snapshot* snapshot = m_snapshots[snapshotIndex - 1];
 
+			for (size_t i = 0; i < snapshot->m_Dominoes.size(); ++i) {
+				IEntity* pEntity = snapshot->m_Dominoes[i];
+				pEntity->SetPos(snapshot->m_positions[i]);
 
-	/*
-	if (snapshotIndex >= 1 && snapshotIndex <= activeIndex) {
-		Snapshot* snapshot = m_snapshots[snapshotIndex - 1];
-
-		for (size_t i = 0; i < snapshot->m_Dominoes.size(); ++i) {
-			IEntity* pEntity = snapshot->m_Dominoes[i];
-			pEntity->SetPos(snapshot->m_positions[i]);
-
-			bool isDeleted = snapshot->m_deleted[i];
-			if (isDeleted) {
-				IEntity* pExistingEntity = gEnv->pEntitySystem->GetEntity(pEntity->GetId());
-				if (pExistingEntity == nullptr) {
-					// Entity was deleted, so re-create it
-					//gEnv->pEntitySystem->AddEntity(pEntity);
+				bool isDeleted = snapshot->m_deleted[i];
+				if (isDeleted) {
+					IEntity* pExistingEntity = gEnv->pEntitySystem->GetEntity(pEntity->GetId());
+					if (pExistingEntity == nullptr) {
+						// Entity was deleted, so re-create it
+						//gEnv->pEntitySystem->AddEntity(pEntity);
+					}
+				}
+				else {
+					pEntity->Hide(false);
 				}
 			}
-			else {
-				pEntity->Hide(false);
-			}
-		}
-		*/
-	activeIndex--;
+			*/
+		activeIndex -= 1;// = m_snapshots.size();
 	}
-
+}
 
 void CPlayerComponent::Redo(int snapshotIndex)
 {
 	auto snapshot = m_snapshots[snapshotIndex];
 	ESnapshotType snapshotType = snapshot->m_snapshotType;
 
-
+	CryLog("Attempting to redo active index: %i", snapshotIndex);
 	switch (snapshotType)
 	{
 	case ESnapshotType::remove:
@@ -913,7 +914,7 @@ void CPlayerComponent::MouseUp()
 			
 
 		}
-		if (m_dominoesJustPlaced > 0)
+		if (m_pDominoesJustPlaced.size() > 0)
 			TakeSnapshot(m_pDominoesJustPlaced,add);
 	}
 	break;
@@ -1443,7 +1444,7 @@ void CPlayerComponent::BindInputs()
 		{
 			if (activationMode == eAAM_OnPress)
 			{
-				Undo(activeIndex);
+				Undo(activeIndex-1);
 			}
 
 		});
@@ -1453,7 +1454,7 @@ void CPlayerComponent::BindInputs()
 		{
 			if (activationMode == eAAM_OnPress)
 			{
-				Undo(activeIndex++);
+				Undo(activeIndex+1);
 			}
 
 		});

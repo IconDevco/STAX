@@ -302,7 +302,7 @@ protected:
 	DynArray<Snapshot*> m_snapshots;
 	
 	// visible index
-	int activeIndex = -1;
+	int activeIndex = 0;
 
 	void TakeSnapshot(DynArray<IEntity*>& entities, ESnapshotType snapshotType);
 
